@@ -1,0 +1,30 @@
+name: Test Workflow Telemetry
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-telemetry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run telemetry monitoring
+        uses: ./
+        with:
+          metric_frequency: "2"
+          metric_iterations: "10"
+      
+      - name: Simulate workload
+        run: |
+          echo "Running CPU-intensive task..."
+          for i in {1..5}; do
+            echo "Task $i"
+            dd if=/dev/zero of=/dev/null count=100000 bs=1024 2>/dev/null &
+            sleep 2
+            killall dd 2>/dev/null || true
+          done
+          echo "Workload complete"
