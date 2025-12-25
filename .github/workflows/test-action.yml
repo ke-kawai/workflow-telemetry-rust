@@ -15,7 +15,7 @@ jobs:
       - name: Start telemetry monitoring
         run: |
           chmod +x ./telemetry
-          nohup env TELEMETRY_INTERVAL=2 TELEMETRY_ITERATIONS=50 ./telemetry > /tmp/telemetry.log 2>&1 &
+          TELEMETRY_INTERVAL=2 TELEMETRY_ITERATIONS=50 ./telemetry > /tmp/telemetry.log 2>&1 &
           echo $! > /tmp/telemetry.pid
           echo "Telemetry started (PID: $(cat /tmp/telemetry.pid))"
       
@@ -38,7 +38,18 @@ jobs:
             PID=$(cat /tmp/telemetry.pid)
             echo "Stopping telemetry (PID: $PID)..."
             kill -TERM $PID 2>/dev/null || true
-            sleep 2
+            sleep 3
             echo "Telemetry stopped"
+            echo "=== Telemetry Log ==="
             cat /tmp/telemetry.log || true
+            echo "=== End Log ==="
+            
+            # Check if summary was written
+            if [ -n "$GITHUB_STEP_SUMMARY" ] && [ -f "$GITHUB_STEP_SUMMARY" ]; then
+              echo "=== Step Summary Content ==="
+              cat "$GITHUB_STEP_SUMMARY" || true
+              echo "=== End Summary ==="
+            else
+              echo "⚠️ GITHUB_STEP_SUMMARY not found or not set"
+            fi
           fi
