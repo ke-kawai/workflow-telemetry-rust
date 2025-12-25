@@ -634,6 +634,7 @@ dependencies = [
  "chrono",
  "ctrlc",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

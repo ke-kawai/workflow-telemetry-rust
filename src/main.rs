@@ -3,7 +3,6 @@ mod reporters;
 mod charts;
 
 use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
-use reporters::generate_report;
 use std::env;
 use std::fs;
 use std::thread;
@@ -37,26 +36,12 @@ fn main() {
     let memory_data_clone = memory_data.clone();
     
     ctrlc::set_handler(move || {
-        let _ = writeln!(io::stderr(), "Received termination signal, generating report...");
+        let _ = writeln!(io::stderr(), "Received termination signal, saving data...");
         let _ = io::stderr().flush();
         running_clone.store(false, Ordering::SeqCst);
         
-        // シグナル受信時に即座にレポート生成
-        let cpu_vec = cpu_data_clone.lock().unwrap().clone();
-        let mem_vec = memory_data_clone.lock().unwrap().clone();
-        
-        eprintln!("Generating emergency report with {} CPU and {} memory points", cpu_vec.len(), mem_vec.len());
-        let _ = io::stderr().flush();
-        
-        if let Ok(report) = generate_report(&cpu_vec, &mem_vec) {
-            if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
-                if let Ok(mut file) = fs::OpenOptions::new().create(true).append(true).open(&summary_path) {
-                    let _ = writeln!(file, "{}", report);
-                    eprintln!("✅ Emergency report written");
-                    let _ = io::stderr().flush();
-                }
-            }
-        }
+        // シグナル受信時にJSON保存
+        save_json_data(&cpu_data_clone.lock().unwrap(), &memory_data_clone.lock().unwrap());
         std::process::exit(0);
     }).expect("Error setting signal handler");
 
@@ -83,55 +68,37 @@ fn main() {
         }
     }
 
-    eprintln!("Collected {} data points, generating report...", count);
+    eprintln!("Collected {} data points, saving data...", count);
     let _ = io::stderr().flush();
 
     let cpu_vec = cpu_data.lock().unwrap().clone();
     let mem_vec = memory_data.lock().unwrap().clone();
     
-    eprintln!("CPU data points: {}, Memory data points: {}", cpu_vec.len(), mem_vec.len());
-    let _ = io::stderr().flush();
+    save_json_data(&cpu_vec, &mem_vec);
+}
+
+fn save_json_data(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) {
+    use serde::Serialize;
     
-    match generate_report(&cpu_vec, &mem_vec) {
-        Ok(report) => {
-            eprintln!("Report generated successfully, {} bytes", report.len());
-            let _ = io::stderr().flush();
-            
-            if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
-                eprintln!("Writing to summary file: {}", summary_path);
-                let _ = io::stderr().flush();
-                match fs::OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(&summary_path)
-                {
-                    Ok(mut file) => {
-                        match writeln!(file, "{}", report) {
-                            Ok(_) => {
-                                eprintln!("✅ Report written to GitHub Step Summary");
-                                let _ = io::stderr().flush();
-                            }
-                            Err(e) => {
-                                eprintln!("❌ Failed to write report: {}", e);
-                                let _ = io::stderr().flush();
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        eprintln!("❌ Failed to open summary file: {}", e);
-                        let _ = io::stderr().flush();
-                    }
-                }
+    #[derive(Serialize)]
+    struct TelemetryData {
+        cpu: Vec<CpuStats>,
+        memory: Vec<MemoryStats>,
+    }
+    
+    let data = TelemetryData {
+        cpu: cpu_data.to_vec(),
+        memory: memory_data.to_vec(),
+    };
+    
+    match serde_json::to_string_pretty(&data) {
+        Ok(json) => {
+            if let Err(e) = fs::write("/tmp/telemetry_data.json", &json) {
+                eprintln!("Failed to write JSON: {}", e);
             } else {
-                eprintln!("⚠️ GITHUB_STEP_SUMMARY not set");
-                let _ = io::stderr().flush();
-                println!("{}", report);
+                eprintln!("✅ Data saved to /tmp/telemetry_data.json");
             }
         }
-        Err(e) => {
-            eprintln!("❌ Failed to generate report: {}", e);
-            let _ = io::stderr().flush();
-            std::process::exit(1);
-        }
+        Err(e) => eprintln!("Failed to serialize JSON: {}", e),
     }
 }
