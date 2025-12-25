@@ -1,5 +1,6 @@
 mod collectors;
 mod reporters;
+mod charts;
 
 use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
 use reporters::generate_report;

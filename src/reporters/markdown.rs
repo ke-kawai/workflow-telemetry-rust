@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crate::collectors::{CpuStats, MemoryStats};
-use crate::reporters::mermaid::{generate_cpu_chart, generate_memory_chart};
+use crate::charts::{generate_cpu_chart, generate_memory_chart};
 
 /// Markdownレポートを生成
 pub fn generate_report(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Result<String> {
@@ -9,14 +9,25 @@ pub fn generate_report(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Re
     // ヘッダー
     report.push_str("# Workflow Telemetry Report\n\n");
     
-    // CPUグラフ
-    report.push_str(&generate_cpu_chart(cpu_data));
-    
-    // メモリグラフ
-    report.push_str(&generate_memory_chart(memory_data));
-    
     if cpu_data.is_empty() && memory_data.is_empty() {
         report.push_str("⚠️ No data collected\n\n");
+        return Ok(report);
+    }
+    
+    // CPUグラフ（SVG）
+    if !cpu_data.is_empty() {
+        let cpu_svg = generate_cpu_chart(cpu_data)?;
+        report.push_str("## CPU Usage\n\n");
+        report.push_str(&cpu_svg);
+        report.push_str("\n\n");
+    }
+    
+    // メモリグラフ（SVG）
+    if !memory_data.is_empty() {
+        let mem_svg = generate_memory_chart(memory_data)?;
+        report.push_str("## Memory Usage\n\n");
+        report.push_str(&mem_svg);
+        report.push_str("\n\n");
     }
     
     Ok(report)
@@ -57,7 +68,7 @@ mod tests {
         assert!(report.contains("# Workflow Telemetry Report"));
         assert!(report.contains("CPU Usage"));
         assert!(report.contains("Memory Usage"));
-        assert!(report.contains("0 --> 100"));
+        assert!(report.contains("<svg"));
     }
 
     #[test]
