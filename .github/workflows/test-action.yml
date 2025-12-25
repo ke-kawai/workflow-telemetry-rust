@@ -56,16 +56,26 @@ jobs:
       - name: Display Summary
         if: always()
         run: |
-          echo "# Workflow Telemetry Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## CPU Usage" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Average**: 1.23%" >> $GITHUB_STEP_SUMMARY
-          echo "- **Peak**: 4.56%" >> $GITHUB_STEP_SUMMARY
-          echo "- **Data Points**: 15" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Memory Usage" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Average**: 890 MB" >> $GITHUB_STEP_SUMMARY
-          echo "- **Peak**: 920 MB" >> $GITHUB_STEP_SUMMARY
-          echo "- **Data Points**: 15" >> $GITHUB_STEP_SUMMARY
+          # telemetryログから統計を抽出して表示
+          if [ -f /tmp/telemetry.log ]; then
+            echo "# Workflow Telemetry Report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # データポイント数を取得
+            DATA_POINTS=$(grep -c "Collected CPU data point" /tmp/telemetry.log || echo "0")
+            
+            echo "## Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Data Points Collected**: $DATA_POINTS" >> $GITHUB_STEP_SUMMARY
+            echo "- **Monitoring Interval**: 2 seconds" >> $GITHUB_STEP_SUMMARY
+            echo "- **Total Duration**: $((DATA_POINTS * 2)) seconds" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            echo "## Logs" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -20 /tmp/telemetry.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No telemetry data available" >> $GITHUB_STEP_SUMMARY
+          fi
