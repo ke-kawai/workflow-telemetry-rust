@@ -8,5 +8,5 @@ anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = "0.4"
-charts-rs = "0.3.27"
+charts-rs = { version = "0.3.27", features = ["image-encoder"] }
 ctrlc = "3.4"

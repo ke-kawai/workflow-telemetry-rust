@@ -58,20 +58,6 @@ jobs:
         run: |
           if [ -f /tmp/telemetry_data.json ]; then
             ./telemetry --generate-svg /tmp/telemetry_data.json
-            
-            # SVGをPNGに変換
-            sudo apt-get update -qq
-            sudo apt-get install -y -qq librsvg2-bin
-            
-            if [ -f cpu-usage.svg ]; then
-              rsvg-convert -w 800 -h 400 cpu-usage.svg -o cpu-usage.png
-              echo "✅ CPU PNG created"
-            fi
-            
-            if [ -f memory-usage.svg ]; then
-              rsvg-convert -w 800 -h 400 memory-usage.svg -o memory-usage.png
-              echo "✅ Memory PNG created"
-            fi
           fi
       
       - name: Upload Charts

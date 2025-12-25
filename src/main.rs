@@ -3,7 +3,7 @@ mod reporters;
 mod charts;
 
 use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
-use charts::{generate_cpu_chart, generate_memory_chart};
+use charts::{generate_cpu_chart_png, generate_memory_chart_png};
 use std::env;
 use std::fs;
 use std::thread;
@@ -40,28 +40,28 @@ fn generate_svg_from_json(json_path: &str) {
         Ok(json_content) => {
             match serde_json::from_str::<TelemetryData>(&json_content) {
                 Ok(data) => {
-                    // CPU SVG生成
+                    // CPU PNG生成
                     if !data.cpu.is_empty() {
-                        match generate_cpu_chart(&data.cpu) {
-                            Ok(cpu_svg) => {
-                                if let Err(e) = fs::write("cpu-usage.svg", &cpu_svg) {
-                                    eprintln!("Failed to write CPU SVG: {}", e);
+                        match generate_cpu_chart_png(&data.cpu) {
+                            Ok(png_data) => {
+                                if let Err(e) = fs::write("cpu-usage.png", &png_data) {
+                                    eprintln!("Failed to write CPU PNG: {}", e);
                                 } else {
-                                    eprintln!("✅ CPU chart saved to cpu-usage.svg");
+                                    eprintln!("✅ CPU chart saved to cpu-usage.png");
                                 }
                             }
                             Err(e) => eprintln!("Failed to generate CPU chart: {}", e),
                         }
                     }
                     
-                    // Memory SVG生成
+                    // Memory PNG生成
                     if !data.memory.is_empty() {
-                        match generate_memory_chart(&data.memory) {
-                            Ok(mem_svg) => {
-                                if let Err(e) = fs::write("memory-usage.svg", &mem_svg) {
-                                    eprintln!("Failed to write Memory SVG: {}", e);
+                        match generate_memory_chart_png(&data.memory) {
+                            Ok(png_data) => {
+                                if let Err(e) = fs::write("memory-usage.png", &png_data) {
+                                    eprintln!("Failed to write Memory PNG: {}", e);
                                 } else {
-                                    eprintln!("✅ Memory chart saved to memory-usage.svg");
+                                    eprintln!("✅ Memory chart saved to memory-usage.png");
                                 }
                             }
                             Err(e) => eprintln!("Failed to generate Memory chart: {}", e),

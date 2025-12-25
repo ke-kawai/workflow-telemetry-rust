@@ -1,6 +1,6 @@
 use crate::collectors::{CpuStats, MemoryStats};
 use anyhow::Result;
-use charts_rs::{LineChart, Series};
+use charts_rs::{LineChart, Series, svg_to_png};
 
 pub fn generate_cpu_chart(data: &[CpuStats]) -> Result<String> {
     if data.is_empty() {
@@ -30,6 +30,15 @@ pub fn generate_cpu_chart(data: &[CpuStats]) -> Result<String> {
     Ok(chart.svg()?)
 }
 
+pub fn generate_cpu_chart_png(data: &[CpuStats]) -> Result<Vec<u8>> {
+    if data.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let svg = generate_cpu_chart(data)?;
+    Ok(svg_to_png(&svg)?)
+}
+
 pub fn generate_memory_chart(data: &[MemoryStats]) -> Result<String> {
     if data.is_empty() {
         return Ok(String::new());
@@ -56,4 +65,13 @@ pub fn generate_memory_chart(data: &[MemoryStats]) -> Result<String> {
     chart.height = 400.0;
     
     Ok(chart.svg()?)
+}
+
+pub fn generate_memory_chart_png(data: &[MemoryStats]) -> Result<Vec<u8>> {
+    if data.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let svg = generate_memory_chart(data)?;
+    Ok(svg_to_png(&svg)?)
 }
