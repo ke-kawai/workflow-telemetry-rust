@@ -15,7 +15,7 @@ jobs:
       - name: Start telemetry monitoring
         run: |
           chmod +x ./telemetry
-          TELEMETRY_INTERVAL=2 TELEMETRY_ITERATIONS=10 ./telemetry &
+          nohup env TELEMETRY_INTERVAL=2 TELEMETRY_ITERATIONS=50 ./telemetry > /tmp/telemetry.log 2>&1 &
           echo $! > /tmp/telemetry.pid
           echo "Telemetry started (PID: $(cat /tmp/telemetry.pid))"
       
@@ -29,12 +29,16 @@ jobs:
             killall dd 2>/dev/null || true
           done
           echo "Workload complete"
+          sleep 5
       
-      - name: Wait for telemetry completion
+      - name: Stop telemetry and generate report
+        if: always()
         run: |
           if [ -f /tmp/telemetry.pid ]; then
             PID=$(cat /tmp/telemetry.pid)
-            echo "Waiting for telemetry (PID: $PID) to complete..."
-            wait $PID 2>/dev/null || true
-            echo "Telemetry monitoring completed"
+            echo "Stopping telemetry (PID: $PID)..."
+            kill -TERM $PID 2>/dev/null || true
+            sleep 2
+            echo "Telemetry stopped"
+            cat /tmp/telemetry.log || true
           fi

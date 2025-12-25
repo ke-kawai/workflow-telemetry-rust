@@ -9,40 +9,54 @@ use std::fs;
 use std::io::Write;
 use std::thread;
 use std::time::Duration;
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::sync::Mutex;
 
 fn main() {
     let mut cpu_collector = CpuCollector::new();
     let memory_collector = MemoryCollector::new();
-    let mut cpu_data: Vec<CpuStats> = Vec::new();
-    let mut memory_data: Vec<MemoryStats> = Vec::new();
+    let cpu_data = Arc::new(Mutex::new(Vec::<CpuStats>::new()));
+    let memory_data = Arc::new(Mutex::new(Vec::<MemoryStats>::new()));
+    let running = Arc::new(AtomicBool::new(true));
 
-    let iterations = env::var("TELEMETRY_ITERATIONS")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(60);
-    
     let interval_secs = env::var("TELEMETRY_INTERVAL")
         .ok()
         .and_then(|s| s.parse().ok())
         .unwrap_or(5);
+    
+    let max_iterations = env::var("TELEMETRY_ITERATIONS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(60);
 
-    eprintln!("Collecting {} iterations at {}s intervals", iterations, interval_secs);
+    eprintln!("Telemetry monitoring started (max {} iterations at {}s intervals)", max_iterations, interval_secs);
 
-    for i in 0..iterations {
+    // SIGTERMハンドラー
+    let running_clone = running.clone();
+    ctrlc::set_handler(move || {
+        eprintln!("Received termination signal, stopping...");
+        running_clone.store(false, Ordering::SeqCst);
+    }).expect("Error setting signal handler");
+
+    let mut count = 0;
+    while running.load(Ordering::SeqCst) && count < max_iterations {
         match cpu_collector.collect() {
-            Ok(stats) => cpu_data.push(stats),
+            Ok(stats) => cpu_data.lock().unwrap().push(stats),
             Err(e) => eprintln!("CPU Error: {}", e),
         }
         match memory_collector.collect() {
-            Ok(stats) => memory_data.push(stats),
+            Ok(stats) => memory_data.lock().unwrap().push(stats),
             Err(e) => eprintln!("Memory Error: {}", e),
         }
-        if i < iterations - 1 {
-            thread::sleep(Duration::from_secs(interval_secs));
-        }
+        count += 1;
+        thread::sleep(Duration::from_secs(interval_secs));
     }
 
-    let report = generate_report(&cpu_data, &memory_data).expect("Failed to generate report");
+    eprintln!("Collected {} data points, generating report...", count);
+
+    let cpu_vec = cpu_data.lock().unwrap().clone();
+    let mem_vec = memory_data.lock().unwrap().clone();
+    let report = generate_report(&cpu_vec, &mem_vec).expect("Failed to generate report");
     
     if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
         let mut file = fs::OpenOptions::new()
