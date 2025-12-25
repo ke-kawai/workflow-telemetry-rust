@@ -9,3 +9,4 @@ serde = { version = "1.0", features = ["derive"] }
 chrono = "0.4"
 plotters = { version = "0.3.7", default-features = false, features = ["bitmap_backend", "bitmap_encoder", "svg_backend", "line_series"] }
 base64 = "0.22.1"
+image = "0.24"

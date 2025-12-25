@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crate::collectors::CpuStats;
-use crate::reporters::svg::generate_cpu_chart;
+use crate::reporters::png::generate_cpu_chart;
 
 /// Markdownレポートを生成
 pub fn generate_report(cpu_data: &[CpuStats]) -> Result<String> {
