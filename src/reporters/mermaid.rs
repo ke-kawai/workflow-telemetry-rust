@@ -49,7 +49,6 @@ pub fn generate_memory_chart(data: &[MemoryStats]) -> String {
     let mut chart = String::new();
     chart.push_str("### Memory Usage\n\n");
     chart.push_str("```mermaid\n");
-    chart.push_str("%%{init: {'theme': 'dark', 'themeVariables': { 'xyChart': {'backgroundColor': '#0d1117'}}}}%%\n");
     chart.push_str("xychart-beta\n");
     chart.push_str("    title \"Memory Usage\"\n");
     
