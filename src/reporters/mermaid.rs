@@ -9,7 +9,6 @@ pub fn generate_cpu_chart(data: &[CpuStats]) -> String {
     let mut chart = String::new();
     chart.push_str("### CPU Usage\n\n");
     chart.push_str("```mermaid\n");
-    chart.push_str("%%{init: {'theme': 'dark', 'themeVariables': { 'xyChart': {'backgroundColor': '#0d1117'}}}}%%\n");
     chart.push_str("xychart-beta\n");
     chart.push_str("    title \"CPU Usage\"\n");
     
