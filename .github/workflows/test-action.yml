@@ -124,9 +124,9 @@ jobs:
             
             echo "## Charts" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "![CPU Usage](docs/charts/cpu-usage.png)" >> $GITHUB_STEP_SUMMARY
+            echo "![CPU Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/cpu-usage.png)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "![Memory Usage](docs/charts/memory-usage.png)" >> $GITHUB_STEP_SUMMARY
+            echo "![Memory Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/memory-usage.png)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ No telemetry data available" >> $GITHUB_STEP_SUMMARY
