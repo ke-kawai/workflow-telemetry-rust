@@ -64,18 +64,30 @@ fn main() {
 
     eprintln!("Collected {} data points, generating report...", count);
     let _ = io::stderr().flush();
+    
+    // デバッグ用ファイル出力
+    let _ = fs::write("/tmp/telemetry_debug.txt", format!("Starting report generation with {} CPU points and {} memory points\n", 
+        cpu_data.lock().unwrap().len(), 
+        memory_data.lock().unwrap().len()));
 
     let cpu_vec = cpu_data.lock().unwrap().clone();
     let mem_vec = memory_data.lock().unwrap().clone();
     
     eprintln!("CPU data points: {}, Memory data points: {}", cpu_vec.len(), mem_vec.len());
+    let _ = io::stderr().flush();
+    
+    let _ = fs::write("/tmp/telemetry_debug.txt", format!("Cloned data: {} CPU, {} memory\n", cpu_vec.len(), mem_vec.len()));
     
     match generate_report(&cpu_vec, &mem_vec) {
         Ok(report) => {
             eprintln!("Report generated successfully, {} bytes", report.len());
+            let _ = io::stderr().flush();
+            
+            let _ = fs::write("/tmp/telemetry_debug.txt", format!("Report generated: {} bytes\n", report.len()));
             
             if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
                 eprintln!("Writing to summary file: {}", summary_path);
+                let _ = io::stderr().flush();
                 match fs::OpenOptions::new()
                     .create(true)
                     .append(true)
@@ -83,19 +95,31 @@ fn main() {
                 {
                     Ok(mut file) => {
                         match writeln!(file, "{}", report) {
-                            Ok(_) => eprintln!("✅ Report written to GitHub Step Summary"),
-                            Err(e) => eprintln!("❌ Failed to write report: {}", e),
+                            Ok(_) => {
+                                eprintln!("✅ Report written to GitHub Step Summary");
+                                let _ = io::stderr().flush();
+                            }
+                            Err(e) => {
+                                eprintln!("❌ Failed to write report: {}", e);
+                                let _ = io::stderr().flush();
+                            }
                         }
                     }
-                    Err(e) => eprintln!("❌ Failed to open summary file: {}", e),
+                    Err(e) => {
+                        eprintln!("❌ Failed to open summary file: {}", e);
+                        let _ = io::stderr().flush();
+                    }
                 }
             } else {
                 eprintln!("⚠️ GITHUB_STEP_SUMMARY not set");
+                let _ = io::stderr().flush();
                 println!("{}", report);
             }
         }
         Err(e) => {
+            let _ = fs::write("/tmp/telemetry_debug.txt", format!("Report generation failed: {}\n", e));
             eprintln!("❌ Failed to generate report: {}", e);
+            let _ = io::stderr().flush();
             std::process::exit(1);
         }
     }
