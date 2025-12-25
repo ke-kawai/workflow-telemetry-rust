@@ -68,18 +68,36 @@ fn main() {
 
     let cpu_vec = cpu_data.lock().unwrap().clone();
     let mem_vec = memory_data.lock().unwrap().clone();
-    let report = generate_report(&cpu_vec, &mem_vec).expect("Failed to generate report");
     
-    if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
-        let mut file = fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&summary_path)
-            .expect("Failed to open GITHUB_STEP_SUMMARY");
-        writeln!(file, "{}", report).expect("Failed to write report");
-        eprintln!("✅ Report written to GitHub Step Summary");
-    } else {
-        eprintln!("⚠️ GITHUB_STEP_SUMMARY not set");
-        std::process::exit(1);
+    eprintln!("CPU data points: {}, Memory data points: {}", cpu_vec.len(), mem_vec.len());
+    
+    match generate_report(&cpu_vec, &mem_vec) {
+        Ok(report) => {
+            eprintln!("Report generated successfully, {} bytes", report.len());
+            
+            if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
+                eprintln!("Writing to summary file: {}", summary_path);
+                match fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(&summary_path)
+                {
+                    Ok(mut file) => {
+                        match writeln!(file, "{}", report) {
+                            Ok(_) => eprintln!("✅ Report written to GitHub Step Summary"),
+                            Err(e) => eprintln!("❌ Failed to write report: {}", e),
+                        }
+                    }
+                    Err(e) => eprintln!("❌ Failed to open summary file: {}", e),
+                }
+            } else {
+                eprintln!("⚠️ GITHUB_STEP_SUMMARY not set");
+                println!("{}", report);
+            }
+        }
+        Err(e) => {
+            eprintln!("❌ Failed to generate report: {}", e);
+            std::process::exit(1);
+        }
     }
 }
