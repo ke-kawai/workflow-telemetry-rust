@@ -6,11 +6,11 @@ use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
 use reporters::generate_report;
 use std::env;
 use std::fs;
-use std::io::Write;
 use std::thread;
 use std::time::Duration;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use std::sync::Mutex;
+use std::io::{self, Write};
 
 fn main() {
     let mut cpu_collector = CpuCollector::new();
@@ -34,20 +34,18 @@ fn main() {
     // SIGTERMハンドラー
     let running_clone = running.clone();
     ctrlc::set_handler(move || {
-        eprintln!("Received termination signal, stopping...");
+        let _ = writeln!(io::stderr(), "Received termination signal, stopping...");
+        let _ = io::stderr().flush();
         running_clone.store(false, Ordering::SeqCst);
     }).expect("Error setting signal handler");
 
     let mut count = 0;
     while running.load(Ordering::SeqCst) && count < max_iterations {
-        if count > 0 && !running.load(Ordering::SeqCst) {
-            break;
-        }
-        
         match cpu_collector.collect() {
             Ok(stats) => {
                 cpu_data.lock().unwrap().push(stats);
-                eprintln!("Collected CPU data point {}", count + 1);
+                let _ = writeln!(io::stderr(), "Collected CPU data point {}", count + 1);
+                let _ = io::stderr().flush();
             }
             Err(e) => eprintln!("CPU Error: {}", e),
         }
@@ -59,12 +57,13 @@ fn main() {
         }
         count += 1;
         
-        if count < max_iterations {
+        if count < max_iterations && running.load(Ordering::SeqCst) {
             thread::sleep(Duration::from_secs(interval_secs));
         }
     }
 
     eprintln!("Collected {} data points, generating report...", count);
+    let _ = io::stderr().flush();
 
     let cpu_vec = cpu_data.lock().unwrap().clone();
     let mem_vec = memory_data.lock().unwrap().clone();
