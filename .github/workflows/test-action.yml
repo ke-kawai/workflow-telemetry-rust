@@ -58,6 +58,20 @@ jobs:
         run: |
           if [ -f /tmp/telemetry_data.json ]; then
             ./telemetry --generate-svg /tmp/telemetry_data.json
+            
+            # SVGをPNGに変換
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq librsvg2-bin
+            
+            if [ -f cpu-usage.svg ]; then
+              rsvg-convert -w 800 -h 400 cpu-usage.svg -o cpu-usage.png
+              echo "✅ CPU PNG created"
+            fi
+            
+            if [ -f memory-usage.svg ]; then
+              rsvg-convert -w 800 -h 400 memory-usage.svg -o memory-usage.png
+              echo "✅ Memory PNG created"
+            fi
           fi
       
       - name: Display Summary
@@ -97,20 +111,20 @@ jobs:
             echo "- **Peak**: ${MAX_MEM} MB" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             
-            # SVGをBase64エンコードして画像タグで埋め込み
-            if [ -f cpu-usage.svg ]; then
-              CPU_BASE64=$(base64 -w 0 cpu-usage.svg)
+            # PNGをBase64エンコードして画像タグで埋め込み
+            if [ -f cpu-usage.png ]; then
+              CPU_BASE64=$(base64 -w 0 cpu-usage.png)
               echo "## CPU Chart" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "<img src=\"data:image/svg+xml;base64,${CPU_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
+              echo "<img src=\"data:image/png;base64,${CPU_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
             fi
             
-            if [ -f memory-usage.svg ]; then
-              MEM_BASE64=$(base64 -w 0 memory-usage.svg)
+            if [ -f memory-usage.png ]; then
+              MEM_BASE64=$(base64 -w 0 memory-usage.png)
               echo "## Memory Chart" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "<img src=\"data:image/svg+xml;base64,${MEM_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
+              echo "<img src=\"data:image/png;base64,${MEM_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
             fi
           else
