@@ -1,7 +1,7 @@
 mod collectors;
 mod reporters;
 
-use collectors::{CpuCollector, CpuStats};
+use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
 use reporters::generate_report;
 use std::env;
 use std::fs;
@@ -11,7 +11,9 @@ use std::time::Duration;
 
 fn main() {
     let mut cpu_collector = CpuCollector::new();
+    let memory_collector = MemoryCollector::new();
     let mut cpu_data: Vec<CpuStats> = Vec::new();
+    let mut memory_data: Vec<MemoryStats> = Vec::new();
 
     let iterations = env::var("TELEMETRY_ITERATIONS")
         .ok()
@@ -28,14 +30,18 @@ fn main() {
     for i in 0..iterations {
         match cpu_collector.collect() {
             Ok(stats) => cpu_data.push(stats),
-            Err(e) => eprintln!("Error: {}", e),
+            Err(e) => eprintln!("CPU Error: {}", e),
+        }
+        match memory_collector.collect() {
+            Ok(stats) => memory_data.push(stats),
+            Err(e) => eprintln!("Memory Error: {}", e),
         }
         if i < iterations - 1 {
             thread::sleep(Duration::from_secs(interval_secs));
         }
     }
 
-    let report = generate_report(&cpu_data).expect("Failed to generate report");
+    let report = generate_report(&cpu_data, &memory_data).expect("Failed to generate report");
     
     if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
         let mut file = fs::OpenOptions::new()
