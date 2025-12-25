@@ -9,32 +9,12 @@ pub fn generate_report(cpu_data: &[CpuStats]) -> Result<String> {
     // ヘッダー
     report.push_str("# Workflow Telemetry Report\n\n");
     
-    // CPU統計サマリー
+    // グラフ
     if !cpu_data.is_empty() {
-        report.push_str("## CPU Metrics\n\n");
-        
-        // 統計情報を計算
-        let total_avg = cpu_data.iter().map(|s| s.total_load).sum::<f64>() / cpu_data.len() as f64;
-        let user_avg = cpu_data.iter().map(|s| s.user_load).sum::<f64>() / cpu_data.len() as f64;
-        let system_avg = cpu_data.iter().map(|s| s.system_load).sum::<f64>() / cpu_data.len() as f64;
-        
-        let total_max = cpu_data.iter().map(|s| s.total_load).fold(0.0f64, |a, b| a.max(b));
-        let user_max = cpu_data.iter().map(|s| s.user_load).fold(0.0f64, |a, b| a.max(b));
-        let system_max = cpu_data.iter().map(|s| s.system_load).fold(0.0f64, |a, b| a.max(b));
-        
-        report.push_str("### Summary\n\n");
-        report.push_str("| Metric | Average | Peak |\n");
-        report.push_str("|--------|---------|------|\n");
-        report.push_str(&format!("| Total CPU | {:.2}% | {:.2}% |\n", total_avg, total_max));
-        report.push_str(&format!("| User CPU | {:.2}% | {:.2}% |\n", user_avg, user_max));
-        report.push_str(&format!("| System CPU | {:.2}% | {:.2}% |\n\n", system_avg, system_max));
-        
-        // Mermaidグラフを生成
-        report.push_str("### CPU Usage Over Time\n\n");
         report.push_str(&generate_cpu_chart(cpu_data));
         report.push_str("\n");
     } else {
-        report.push_str("⚠️ No CPU data collected\n\n");
+        report.push_str("⚠️ No data collected\n\n");
     }
     
     Ok(report)
@@ -64,10 +44,8 @@ mod tests {
         let report = generate_report(&data).unwrap();
         
         assert!(report.contains("# Workflow Telemetry Report"));
-        assert!(report.contains("## CPU Metrics"));
-        assert!(report.contains("Total CPU"));
-        assert!(report.contains("15.00%")); // average
-        assert!(report.contains("20.00%")); // peak
+        assert!(report.contains("```mermaid"));
+        assert!(report.contains("Resource Usage"));
     }
 
     #[test]
@@ -75,6 +53,6 @@ mod tests {
         let data: Vec<CpuStats> = vec![];
         let report = generate_report(&data).unwrap();
         
-        assert!(report.contains("No CPU data collected"));
+        assert!(report.contains("No data collected"));
     }
 }
