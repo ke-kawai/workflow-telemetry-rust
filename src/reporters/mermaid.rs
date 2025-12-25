@@ -1,75 +1,82 @@
 use crate::collectors::{CpuStats, MemoryStats};
 
-/// Mermaid xyChartを生成（CPU + メモリ）
-pub fn generate_chart(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> String {
-    if cpu_data.is_empty() && memory_data.is_empty() {
-        return "```mermaid\n%%{init: {'theme':'base'}}%%\nxychart-beta\n    title \"No data\"\n    x-axis [0]\n    y-axis \"Usage %\" 0 --> 10\n```".to_string();
+/// CPUグラフを生成
+pub fn generate_cpu_chart(data: &[CpuStats]) -> String {
+    if data.is_empty() {
+        return String::new();
     }
 
     let mut chart = String::new();
+    chart.push_str("### CPU Usage\n\n");
     chart.push_str("```mermaid\n");
     chart.push_str("%%{init: {'theme': 'dark', 'themeVariables': { 'xyChart': {'backgroundColor': '#0d1117'}}}}%%\n");
     chart.push_str("xychart-beta\n");
-    chart.push_str("    title \"Resource Usage\"\n");
+    chart.push_str("    title \"CPU Usage\"\n");
     
     // X軸: 開始からの経過秒数
-    let start_time = if let Some(s) = cpu_data.first() {
-        s.time
-    } else if let Some(s) = memory_data.first() {
-        s.time
-    } else {
-        0
-    };
-    
-    let data_count = cpu_data.len().max(memory_data.len());
+    let start_time = data.first().unwrap().time;
     chart.push_str("    x-axis [");
-    let time_labels: Vec<String> = (0..data_count)
-        .filter(|i| i % 5 == 0 || *i == data_count - 1)
-        .map(|i| {
-            let time = if i < cpu_data.len() {
-                cpu_data[i].time
-            } else if i < memory_data.len() {
-                memory_data[i].time
-            } else {
-                start_time
-            };
-            format!("\"{}s\"", (time - start_time) / 1000)
-        })
+    let time_labels: Vec<String> = data.iter()
+        .enumerate()
+        .filter(|(i, _)| i % 5 == 0 || *i == data.len() - 1)
+        .map(|(_, s)| format!("\"{}s\"", (s.time - start_time) / 1000))
         .collect();
     chart.push_str(&time_labels.join(", "));
     chart.push_str("]\n");
     
-    // Y軸: 使用率の最大値を計算
-    let max_cpu = cpu_data.iter()
-        .map(|s| s.total_load)
-        .fold(0.0f64, |a, b| a.max(b));
-    let max_memory = memory_data.iter()
-        .map(|s| s.usage_percent)
-        .fold(0.0f64, |a, b| a.max(b));
-    let max_value = max_cpu.max(max_memory).max(10.0).ceil() as i32;
-    chart.push_str(&format!("    y-axis \"Usage %\" 0 --> {}\n", max_value));
+    // Y軸: 0-100%固定
+    chart.push_str("    y-axis \"CPU %\" 0 --> 100\n");
     
-    // CPU使用率（赤、塗りつぶし）
-    if !cpu_data.is_empty() {
-        chart.push_str("    bar [");
-        let cpu_values: Vec<String> = cpu_data.iter()
-            .map(|s| format!("{:.1}", s.total_load))
-            .collect();
-        chart.push_str(&cpu_values.join(", "));
-        chart.push_str("]\n");
+    // CPU使用率（赤色の線）
+    chart.push_str("    line [");
+    let cpu_values: Vec<String> = data.iter()
+        .map(|s| format!("{:.1}", s.total_load))
+        .collect();
+    chart.push_str(&cpu_values.join(", "));
+    chart.push_str("]\n");
+    
+    chart.push_str("```\n\n");
+    chart
+}
+
+/// メモリグラフを生成
+pub fn generate_memory_chart(data: &[MemoryStats]) -> String {
+    if data.is_empty() {
+        return String::new();
     }
+
+    let total_gb = data.first().unwrap().total_mb as f64 / 1024.0;
     
-    // メモリ使用率（緑、塗りつぶし）
-    if !memory_data.is_empty() {
-        chart.push_str("    bar [");
-        let memory_values: Vec<String> = memory_data.iter()
-            .map(|s| format!("{:.1}", s.usage_percent))
-            .collect();
-        chart.push_str(&memory_values.join(", "));
-        chart.push_str("]\n");
-    }
+    let mut chart = String::new();
+    chart.push_str("### Memory Usage\n\n");
+    chart.push_str("```mermaid\n");
+    chart.push_str("%%{init: {'theme': 'dark', 'themeVariables': { 'xyChart': {'backgroundColor': '#0d1117'}}}}%%\n");
+    chart.push_str("xychart-beta\n");
+    chart.push_str("    title \"Memory Usage\"\n");
     
-    chart.push_str("```\n");
+    // X軸: 開始からの経過秒数
+    let start_time = data.first().unwrap().time;
+    chart.push_str("    x-axis [");
+    let time_labels: Vec<String> = data.iter()
+        .enumerate()
+        .filter(|(i, _)| i % 5 == 0 || *i == data.len() - 1)
+        .map(|(_, s)| format!("\"{}s\"", (s.time - start_time) / 1000))
+        .collect();
+    chart.push_str(&time_labels.join(", "));
+    chart.push_str("]\n");
+    
+    // Y軸: 総メモリ量（GB）
+    chart.push_str(&format!("    y-axis \"Memory GB\" 0 --> {:.1}\n", total_gb));
+    
+    // メモリ使用量（緑色の線、GB単位）
+    chart.push_str("    line [");
+    let memory_values: Vec<String> = data.iter()
+        .map(|s| format!("{:.2}", s.used_mb as f64 / 1024.0))
+        .collect();
+    chart.push_str(&memory_values.join(", "));
+    chart.push_str("]\n");
+    
+    chart.push_str("```\n\n");
     chart
 }
 
@@ -78,7 +85,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_generate_chart() {
+    fn test_generate_cpu_chart() {
         let cpu_data = vec![
             CpuStats {
                 time: 1000,
@@ -93,7 +100,17 @@ mod tests {
                 system_load: 10.7,
             },
         ];
+
+        let chart = generate_cpu_chart(&cpu_data);
         
+        assert!(chart.contains("```mermaid"));
+        assert!(chart.contains("CPU Usage"));
+        assert!(chart.contains("0 --> 100"));
+        assert!(chart.contains("10.5"));
+    }
+
+    #[test]
+    fn test_generate_memory_chart() {
         let memory_data = vec![
             MemoryStats {
                 time: 1000,
@@ -109,21 +126,20 @@ mod tests {
             },
         ];
 
-        let chart = generate_chart(&cpu_data, &memory_data);
+        let chart = generate_memory_chart(&memory_data);
         
         assert!(chart.contains("```mermaid"));
-        assert!(chart.contains("xychart-beta"));
-        assert!(chart.contains("Resource Usage"));
-        assert!(chart.contains("\"0s\""));
-        assert!(chart.contains("10.5"));
-        assert!(chart.contains("45.2"));
+        assert!(chart.contains("Memory Usage"));
+        assert!(chart.contains("4.41")); // 4520/1024
     }
 
     #[test]
     fn test_empty_data() {
         let cpu_data: Vec<CpuStats> = vec![];
         let memory_data: Vec<MemoryStats> = vec![];
-        let chart = generate_chart(&cpu_data, &memory_data);
-        assert!(chart.contains("No data"));
+        let cpu_chart = generate_cpu_chart(&cpu_data);
+        let mem_chart = generate_memory_chart(&memory_data);
+        assert!(cpu_chart.is_empty());
+        assert!(mem_chart.is_empty());
     }
 }
