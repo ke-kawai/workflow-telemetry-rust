@@ -27,8 +27,7 @@ pub fn generate_report(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Re
         eprintln!("✅ CPU chart saved to {}", cpu_path);
         
         report.push_str("## CPU Usage\n\n");
-        report.push_str(&cpu_svg);
-        report.push_str("\n\n");
+        report.push_str("![CPU Usage](cpu-usage.svg)\n\n");
     }
     
     // メモリグラフ（SVG）
@@ -39,8 +38,7 @@ pub fn generate_report(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Re
         eprintln!("✅ Memory chart saved to {}", mem_path);
         
         report.push_str("## Memory Usage\n\n");
-        report.push_str(&mem_svg);
-        report.push_str("\n\n");
+        report.push_str("![Memory Usage](memory-usage.svg)\n\n");
     }
     
     Ok(report)
