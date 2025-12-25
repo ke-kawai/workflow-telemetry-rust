@@ -58,6 +58,18 @@ jobs:
         run: |
           if [ -f /tmp/telemetry_data.json ]; then
             ./telemetry --generate-svg /tmp/telemetry_data.json
+            
+            # docs/chartsディレクトリに保存
+            mkdir -p docs/charts
+            cp cpu-usage.png docs/charts/ 2>/dev/null || true
+            cp memory-usage.png docs/charts/ 2>/dev/null || true
+            
+            # GitHubにコミット
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/charts/*.png || true
+            git diff --staged --quiet || git commit -m "Update telemetry charts [skip ci]"
+            git push || true
           fi
       
       - name: Upload Charts
@@ -109,7 +121,9 @@ jobs:
             
             echo "## Charts" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "📊 Download charts from the **Artifacts** section above" >> $GITHUB_STEP_SUMMARY
+            echo "![CPU Usage](docs/charts/cpu-usage.png)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "![Memory Usage](docs/charts/memory-usage.png)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ No telemetry data available" >> $GITHUB_STEP_SUMMARY
