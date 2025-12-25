@@ -97,18 +97,20 @@ jobs:
             echo "- **Peak**: ${MAX_MEM} MB" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             
-            # SVGグラフを生成してサマリーに追加
+            # SVGをBase64エンコードして画像タグで埋め込み
             if [ -f cpu-usage.svg ]; then
+              CPU_BASE64=$(base64 -w 0 cpu-usage.svg)
               echo "## CPU Chart" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              cat cpu-usage.svg >> $GITHUB_STEP_SUMMARY
+              echo "<img src=\"data:image/svg+xml;base64,${CPU_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
             fi
             
             if [ -f memory-usage.svg ]; then
+              MEM_BASE64=$(base64 -w 0 memory-usage.svg)
               echo "## Memory Chart" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              cat memory-usage.svg >> $GITHUB_STEP_SUMMARY
+              echo "<img src=\"data:image/svg+xml;base64,${MEM_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
             fi
           else
