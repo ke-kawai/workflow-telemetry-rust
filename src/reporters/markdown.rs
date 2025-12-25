@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crate::collectors::CpuStats;
-use crate::reporters::png::generate_cpu_chart;
+use crate::reporters::mermaid::generate_cpu_chart;
 
 /// Markdownレポートを生成
 pub fn generate_report(cpu_data: &[CpuStats]) -> Result<String> {
@@ -29,16 +29,10 @@ pub fn generate_report(cpu_data: &[CpuStats]) -> Result<String> {
         report.push_str(&format!("| User CPU | {:.2}% | {:.2}% |\n", user_avg, user_max));
         report.push_str(&format!("| System CPU | {:.2}% | {:.2}% |\n\n", system_avg, system_max));
         
-        // グラフを生成
-        match generate_cpu_chart(cpu_data) {
-            Ok(svg_data_url) => {
-                report.push_str("### CPU Usage Over Time\n\n");
-                report.push_str(&format!("![CPU Usage]({})\n\n", svg_data_url));
-            }
-            Err(e) => {
-                report.push_str(&format!("⚠️ Failed to generate chart: {}\n\n", e));
-            }
-        }
+        // Mermaidグラフを生成
+        report.push_str("### CPU Usage Over Time\n\n");
+        report.push_str(&generate_cpu_chart(cpu_data));
+        report.push_str("\n");
     } else {
         report.push_str("⚠️ No CPU data collected\n\n");
     }
