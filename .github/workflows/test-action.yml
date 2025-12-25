@@ -57,8 +57,7 @@ jobs:
         if: always()
         run: |
           if [ -f /tmp/telemetry_data.json ]; then
-            # Rustバイナリを使ってSVG生成
-            ./telemetry-svg-generator /tmp/telemetry_data.json || echo "SVG generation skipped"
+            ./telemetry --generate-svg /tmp/telemetry_data.json
           fi
       
       - name: Display Summary

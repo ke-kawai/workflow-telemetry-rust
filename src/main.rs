@@ -3,6 +3,7 @@ mod reporters;
 mod charts;
 
 use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
+use charts::{generate_cpu_chart, generate_memory_chart};
 use std::env;
 use std::fs;
 use std::thread;
@@ -12,6 +13,69 @@ use std::sync::Mutex;
 use std::io::{self, Write};
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    
+    // SVG生成モード
+    if args.len() > 1 && args[1] == "--generate-svg" {
+        if args.len() < 3 {
+            eprintln!("Usage: {} --generate-svg <json_file>", args[0]);
+            std::process::exit(1);
+        }
+        generate_svg_from_json(&args[2]);
+        return;
+    }
+    
+    // 通常のモニタリングモード
+    run_monitoring();
+}
+
+fn generate_svg_from_json(json_path: &str) {
+    #[derive(serde::Deserialize)]
+    struct TelemetryData {
+        cpu: Vec<CpuStats>,
+        memory: Vec<MemoryStats>,
+    }
+    
+    match fs::read_to_string(json_path) {
+        Ok(json_content) => {
+            match serde_json::from_str::<TelemetryData>(&json_content) {
+                Ok(data) => {
+                    // CPU SVG生成
+                    if !data.cpu.is_empty() {
+                        match generate_cpu_chart(&data.cpu) {
+                            Ok(cpu_svg) => {
+                                if let Err(e) = fs::write("cpu-usage.svg", &cpu_svg) {
+                                    eprintln!("Failed to write CPU SVG: {}", e);
+                                } else {
+                                    eprintln!("✅ CPU chart saved to cpu-usage.svg");
+                                }
+                            }
+                            Err(e) => eprintln!("Failed to generate CPU chart: {}", e),
+                        }
+                    }
+                    
+                    // Memory SVG生成
+                    if !data.memory.is_empty() {
+                        match generate_memory_chart(&data.memory) {
+                            Ok(mem_svg) => {
+                                if let Err(e) = fs::write("memory-usage.svg", &mem_svg) {
+                                    eprintln!("Failed to write Memory SVG: {}", e);
+                                } else {
+                                    eprintln!("✅ Memory chart saved to memory-usage.svg");
+                                }
+                            }
+                            Err(e) => eprintln!("Failed to generate Memory chart: {}", e),
+                        }
+                    }
+                }
+                Err(e) => eprintln!("Failed to parse JSON: {}", e),
+            }
+        }
+        Err(e) => eprintln!("Failed to read JSON file: {}", e),
+    }
+}
+
+fn run_monitoring() {
     let mut cpu_collector = CpuCollector::new();
     let memory_collector = MemoryCollector::new();
     let cpu_data = Arc::new(Mutex::new(Vec::<CpuStats>::new()));
