@@ -51,6 +51,11 @@ jobs:
             echo "=== Telemetry Log ==="
             cat /tmp/telemetry.log || true
             echo "=== End Log ==="
+            
+            echo ""
+            echo "=== Immediate Summary Check ==="
+            cat "$GITHUB_STEP_SUMMARY" || echo "Empty or not found"
+            echo "=== End Immediate Check ==="
           fi
       
       - name: Check Summary Content
