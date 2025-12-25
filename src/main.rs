@@ -40,16 +40,28 @@ fn main() {
 
     let mut count = 0;
     while running.load(Ordering::SeqCst) && count < max_iterations {
+        if count > 0 && !running.load(Ordering::SeqCst) {
+            break;
+        }
+        
         match cpu_collector.collect() {
-            Ok(stats) => cpu_data.lock().unwrap().push(stats),
+            Ok(stats) => {
+                cpu_data.lock().unwrap().push(stats);
+                eprintln!("Collected CPU data point {}", count + 1);
+            }
             Err(e) => eprintln!("CPU Error: {}", e),
         }
         match memory_collector.collect() {
-            Ok(stats) => memory_data.lock().unwrap().push(stats),
+            Ok(stats) => {
+                memory_data.lock().unwrap().push(stats);
+            }
             Err(e) => eprintln!("Memory Error: {}", e),
         }
         count += 1;
-        thread::sleep(Duration::from_secs(interval_secs));
+        
+        if count < max_iterations {
+            thread::sleep(Duration::from_secs(interval_secs));
+        }
     }
 
     eprintln!("Collected {} data points, generating report...", count);
