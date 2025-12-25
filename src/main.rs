@@ -34,6 +34,7 @@ fn main() {
     // SIGTERMハンドラー
     let running_clone = running.clone();
     ctrlc::set_handler(move || {
+        let _ = fs::write("/tmp/signal_received.txt", "SIGTERM received\n");
         let _ = writeln!(io::stderr(), "Received termination signal, stopping...");
         let _ = io::stderr().flush();
         running_clone.store(false, Ordering::SeqCst);

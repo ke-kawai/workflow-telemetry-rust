@@ -61,6 +61,10 @@ jobs:
             cat /tmp/telemetry_debug.txt || echo "No debug file"
             echo "=== End Debug ==="
             
+            echo "=== Signal File ==="
+            cat /tmp/signal_received.txt || echo "No signal file"
+            echo "=== End Signal ==="
+            
             # Check if summary was written
             if [ -n "$GITHUB_STEP_SUMMARY" ] && [ -f "$GITHUB_STEP_SUMMARY" ]; then
               echo "=== Step Summary Content ==="
