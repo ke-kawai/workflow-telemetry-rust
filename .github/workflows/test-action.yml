@@ -74,6 +74,16 @@ jobs:
             fi
           fi
       
+      - name: Upload Charts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telemetry-charts
+          path: |
+            cpu-usage.png
+            memory-usage.png
+          retention-days: 90
+      
       - name: Display Summary
         if: always()
         run: |
@@ -111,22 +121,10 @@ jobs:
             echo "- **Peak**: ${MAX_MEM} MB" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             
-            # PNGをBase64エンコードして画像タグで埋め込み
-            if [ -f cpu-usage.png ]; then
-              CPU_BASE64=$(base64 -w 0 cpu-usage.png)
-              echo "## CPU Chart" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "<img src=\"data:image/png;base64,${CPU_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-            fi
-            
-            if [ -f memory-usage.png ]; then
-              MEM_BASE64=$(base64 -w 0 memory-usage.png)
-              echo "## Memory Chart" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "<img src=\"data:image/png;base64,${MEM_BASE64}\" />" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-            fi
+            echo "## Charts" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 Download charts from the **Artifacts** section above" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ No telemetry data available" >> $GITHUB_STEP_SUMMARY
           fi
