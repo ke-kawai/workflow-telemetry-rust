@@ -51,3 +51,4 @@ jobs:
             echo "=== Telemetry Log ==="
             cat /tmp/telemetry.log || true
             echo "=== End Log ==="
+          fi
