@@ -12,11 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Run telemetry monitoring
-        uses: ./
-        with:
-          metric_frequency: "2"
-          metric_iterations: "10"
+      - name: Start telemetry monitoring
+        run: |
+          chmod +x ./telemetry
+          TELEMETRY_INTERVAL=2 TELEMETRY_ITERATIONS=10 ./telemetry &
+          echo $! > /tmp/telemetry.pid
+          echo "Telemetry started (PID: $(cat /tmp/telemetry.pid))"
       
       - name: Simulate workload
         run: |
@@ -28,3 +29,12 @@ jobs:
             killall dd 2>/dev/null || true
           done
           echo "Workload complete"
+      
+      - name: Wait for telemetry completion
+        run: |
+          if [ -f /tmp/telemetry.pid ]; then
+            PID=$(cat /tmp/telemetry.pid)
+            echo "Waiting for telemetry (PID: $PID) to complete..."
+            wait $PID 2>/dev/null || true
+            echo "Telemetry monitoring completed"
+          fi
