@@ -33,11 +33,31 @@ fn main() {
 
     // SIGTERMハンドラー
     let running_clone = running.clone();
+    let cpu_data_clone = cpu_data.clone();
+    let memory_data_clone = memory_data.clone();
+    
     ctrlc::set_handler(move || {
-        let _ = fs::write("/tmp/signal_received.txt", "SIGTERM received\n");
-        let _ = writeln!(io::stderr(), "Received termination signal, stopping...");
+        let _ = writeln!(io::stderr(), "Received termination signal, generating report...");
         let _ = io::stderr().flush();
         running_clone.store(false, Ordering::SeqCst);
+        
+        // シグナル受信時に即座にレポート生成
+        let cpu_vec = cpu_data_clone.lock().unwrap().clone();
+        let mem_vec = memory_data_clone.lock().unwrap().clone();
+        
+        eprintln!("Generating emergency report with {} CPU and {} memory points", cpu_vec.len(), mem_vec.len());
+        let _ = io::stderr().flush();
+        
+        if let Ok(report) = generate_report(&cpu_vec, &mem_vec) {
+            if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
+                if let Ok(mut file) = fs::OpenOptions::new().create(true).append(true).open(&summary_path) {
+                    let _ = writeln!(file, "{}", report);
+                    eprintln!("✅ Emergency report written");
+                    let _ = io::stderr().flush();
+                }
+            }
+        }
+        std::process::exit(0);
     }).expect("Error setting signal handler");
 
     let mut count = 0;
@@ -65,11 +85,6 @@ fn main() {
 
     eprintln!("Collected {} data points, generating report...", count);
     let _ = io::stderr().flush();
-    
-    // デバッグ用ファイル出力
-    let _ = fs::write("/tmp/telemetry_debug.txt", format!("Starting report generation with {} CPU points and {} memory points\n", 
-        cpu_data.lock().unwrap().len(), 
-        memory_data.lock().unwrap().len()));
 
     let cpu_vec = cpu_data.lock().unwrap().clone();
     let mem_vec = memory_data.lock().unwrap().clone();
@@ -77,14 +92,10 @@ fn main() {
     eprintln!("CPU data points: {}, Memory data points: {}", cpu_vec.len(), mem_vec.len());
     let _ = io::stderr().flush();
     
-    let _ = fs::write("/tmp/telemetry_debug.txt", format!("Cloned data: {} CPU, {} memory\n", cpu_vec.len(), mem_vec.len()));
-    
     match generate_report(&cpu_vec, &mem_vec) {
         Ok(report) => {
             eprintln!("Report generated successfully, {} bytes", report.len());
             let _ = io::stderr().flush();
-            
-            let _ = fs::write("/tmp/telemetry_debug.txt", format!("Report generated: {} bytes\n", report.len()));
             
             if let Ok(summary_path) = env::var("GITHUB_STEP_SUMMARY") {
                 eprintln!("Writing to summary file: {}", summary_path);
@@ -118,7 +129,6 @@ fn main() {
             }
         }
         Err(e) => {
-            let _ = fs::write("/tmp/telemetry_debug.txt", format!("Report generation failed: {}\n", e));
             eprintln!("❌ Failed to generate report: {}", e);
             let _ = io::stderr().flush();
             std::process::exit(1);
