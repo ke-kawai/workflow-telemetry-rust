@@ -1,8 +1,5 @@
 use anyhow::Result;
 use crate::collectors::{CpuStats, MemoryStats};
-use crate::charts::{generate_cpu_chart, generate_memory_chart};
-use std::env;
-use std::fs;
 
 /// Markdownレポートを生成
 pub fn generate_report(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Result<String> {
@@ -16,29 +13,26 @@ pub fn generate_report(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Re
         return Ok(report);
     }
     
-    // SVGファイルを保存
-    let workspace = env::var("GITHUB_WORKSPACE").unwrap_or_else(|_| ".".to_string());
-    
-    // CPUグラフ（SVG）
+    // CPUサマリー
     if !cpu_data.is_empty() {
-        let cpu_svg = generate_cpu_chart(cpu_data)?;
-        let cpu_path = format!("{}/cpu-usage.svg", workspace);
-        fs::write(&cpu_path, &cpu_svg)?;
-        eprintln!("✅ CPU chart saved to {}", cpu_path);
+        let avg_cpu: f64 = cpu_data.iter().map(|s| s.total_load).sum::<f64>() / cpu_data.len() as f64;
+        let max_cpu: f64 = cpu_data.iter().map(|s| s.total_load).fold(0.0, f64::max);
         
         report.push_str("## CPU Usage\n\n");
-        report.push_str("![CPU Usage](cpu-usage.svg)\n\n");
+        report.push_str(&format!("- **Average**: {:.2}%\n", avg_cpu));
+        report.push_str(&format!("- **Peak**: {:.2}%\n", max_cpu));
+        report.push_str(&format!("- **Data Points**: {}\n\n", cpu_data.len()));
     }
     
-    // メモリグラフ（SVG）
+    // メモリサマリー
     if !memory_data.is_empty() {
-        let mem_svg = generate_memory_chart(memory_data)?;
-        let mem_path = format!("{}/memory-usage.svg", workspace);
-        fs::write(&mem_path, &mem_svg)?;
-        eprintln!("✅ Memory chart saved to {}", mem_path);
+        let avg_mem: f64 = memory_data.iter().map(|s| s.used_mb as f64).sum::<f64>() / memory_data.len() as f64;
+        let max_mem: u64 = memory_data.iter().map(|s| s.used_mb).max().unwrap_or(0);
         
         report.push_str("## Memory Usage\n\n");
-        report.push_str("![Memory Usage](memory-usage.svg)\n\n");
+        report.push_str(&format!("- **Average**: {:.0} MB\n", avg_mem));
+        report.push_str(&format!("- **Peak**: {} MB\n", max_mem));
+        report.push_str(&format!("- **Data Points**: {}\n\n", memory_data.len()));
     }
     
     Ok(report)
