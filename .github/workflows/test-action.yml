@@ -52,3 +52,14 @@ jobs:
             cat /tmp/telemetry.log || true
             echo "=== End Log ==="
           fi
+      
+      - name: Check Summary Content
+        if: always()
+        run: |
+          echo "=== Step Summary File Content ==="
+          cat "$GITHUB_STEP_SUMMARY" || echo "Summary file not found"
+          echo "=== End Summary Content ==="
+          
+          echo "=== Generated SVG Files ==="
+          ls -lh cpu-usage.svg memory-usage.svg 2>/dev/null || echo "SVG files not found"
+          echo "=== End SVG Files ==="
