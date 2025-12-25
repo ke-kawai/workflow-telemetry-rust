@@ -1,0 +1,29 @@
+name: "Workflow Telemetry Rust"
+description: "Monitor CPU usage in GitHub Actions"
+author: "ke-kawai"
+
+inputs:
+  metric_frequency:
+    description: "Collection interval in seconds"
+    default: "5"
+    required: false
+  metric_iterations:
+    description: "Number of collections (default: 60 = 5 minutes)"
+    default: "60"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run telemetry
+      shell: bash
+      env:
+        TELEMETRY_INTERVAL: ${{ inputs.metric_frequency }}
+        TELEMETRY_ITERATIONS: ${{ inputs.metric_iterations }}
+      run: |
+        chmod +x ${{ github.action_path }}/telemetry
+        ${{ github.action_path }}/telemetry
+
+branding:
+  icon: "activity"
+  color: "blue"

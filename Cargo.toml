@@ -1,0 +1,11 @@
+[package]
+name = "workflow-telemetry-rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+chrono = "0.4"
+plotters = "0.3.7"
+base64 = "0.22.1"
