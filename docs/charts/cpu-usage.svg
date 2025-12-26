@@ -11,74 +11,114 @@ CPU %
 </text>
 </g>
 <g stroke="#E0E6F2">
-<line stroke-width="1" x1="26" y1="40" x2="795" y2="40"/><line stroke-width="1" x1="26" y1="94.2" x2="795" y2="94.2"/><line stroke-width="1" x1="26" y1="148.3" x2="795" y2="148.3"/><line stroke-width="1" x1="26" y1="202.5" x2="795" y2="202.5"/><line stroke-width="1" x1="26" y1="256.7" x2="795" y2="256.7"/><line stroke-width="1" x1="26" y1="310.8" x2="795" y2="310.8"/>
+<line stroke-width="1" x1="30" y1="40" x2="795" y2="40"/><line stroke-width="1" x1="30" y1="94.2" x2="795" y2="94.2"/><line stroke-width="1" x1="30" y1="148.3" x2="795" y2="148.3"/><line stroke-width="1" x1="30" y1="202.5" x2="795" y2="202.5"/><line stroke-width="1" x1="30" y1="256.7" x2="795" y2="256.7"/><line stroke-width="1" x1="30" y1="310.8" x2="795" y2="310.8"/>
 </g>
 <g>
 
 <text font-size="14" x="2" y="45" font-family="Roboto" fill="#6E7079">
-90
+5.4
 </text>
 <text font-size="14" x="2" y="99.2" font-family="Roboto" fill="#6E7079">
-75
+4.5
 </text>
 <text font-size="14" x="2" y="153.3" font-family="Roboto" fill="#6E7079">
-60
+3.6
 </text>
 <text font-size="14" x="2" y="207.5" font-family="Roboto" fill="#6E7079">
-45
+2.7
 </text>
 <text font-size="14" x="2" y="261.7" font-family="Roboto" fill="#6E7079">
-30
+1.8
 </text>
-<text font-size="14" x="2" y="315.8" font-family="Roboto" fill="#6E7079">
-15
+<text font-size="14" x="3" y="315.8" font-family="Roboto" fill="#6E7079">
+0.9
 </text>
-<text font-size="14" x="10" y="370" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="14" y="370" font-family="Roboto" fill="#6E7079">
 0
 </text>
 </g>
 <g>
 <g stroke="#6E7079">
-<line stroke-width="1" x1="26" y1="365" x2="795" y2="365"/>
-<line stroke-width="1" x1="26" y1="365" x2="26" y2="370"/>
-<line stroke-width="1" x1="135.9" y1="365" x2="135.9" y2="370"/>
-<line stroke-width="1" x1="245.7" y1="365" x2="245.7" y2="370"/>
-<line stroke-width="1" x1="355.6" y1="365" x2="355.6" y2="370"/>
-<line stroke-width="1" x1="465.4" y1="365" x2="465.4" y2="370"/>
-<line stroke-width="1" x1="575.3" y1="365" x2="575.3" y2="370"/>
-<line stroke-width="1" x1="685.1" y1="365" x2="685.1" y2="370"/>
+<line stroke-width="1" x1="30" y1="365" x2="795" y2="365"/>
+<line stroke-width="1" x1="30" y1="365" x2="30" y2="370"/>
+<line stroke-width="1" x1="81" y1="365" x2="81" y2="370"/>
+<line stroke-width="1" x1="132" y1="365" x2="132" y2="370"/>
+<line stroke-width="1" x1="183" y1="365" x2="183" y2="370"/>
+<line stroke-width="1" x1="234" y1="365" x2="234" y2="370"/>
+<line stroke-width="1" x1="285" y1="365" x2="285" y2="370"/>
+<line stroke-width="1" x1="336" y1="365" x2="336" y2="370"/>
+<line stroke-width="1" x1="387" y1="365" x2="387" y2="370"/>
+<line stroke-width="1" x1="438" y1="365" x2="438" y2="370"/>
+<line stroke-width="1" x1="489" y1="365" x2="489" y2="370"/>
+<line stroke-width="1" x1="540" y1="365" x2="540" y2="370"/>
+<line stroke-width="1" x1="591" y1="365" x2="591" y2="370"/>
+<line stroke-width="1" x1="642" y1="365" x2="642" y2="370"/>
+<line stroke-width="1" x1="693" y1="365" x2="693" y2="370"/>
+<line stroke-width="1" x1="744" y1="365" x2="744" y2="370"/>
 <line stroke-width="1" x1="795" y1="365" x2="795" y2="370"/>
 </g>
-<text font-size="14" x="73.4" y="384" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="48" y="384" font-family="Roboto" fill="#6E7079">
 0s
 </text>
-<text font-size="14" x="183.3" y="384" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="99" y="384" font-family="Roboto" fill="#6E7079">
 2s
 </text>
-<text font-size="14" x="293.1" y="384" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="150" y="384" font-family="Roboto" fill="#6E7079">
 4s
 </text>
-<text font-size="14" x="403" y="384" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="201" y="384" font-family="Roboto" fill="#6E7079">
 6s
 </text>
-<text font-size="14" x="512.9" y="384" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="252" y="384" font-family="Roboto" fill="#6E7079">
 8s
 </text>
-<text font-size="14" x="618.7" y="384" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="299" y="384" font-family="Roboto" fill="#6E7079">
 10s
 </text>
-<text font-size="14" x="728.6" y="384" font-family="Roboto" fill="#6E7079">
+<text font-size="14" x="350" y="384" font-family="Roboto" fill="#6E7079">
 12s
+</text>
+<text font-size="14" x="401" y="384" font-family="Roboto" fill="#6E7079">
+14s
+</text>
+<text font-size="14" x="452" y="384" font-family="Roboto" fill="#6E7079">
+16s
+</text>
+<text font-size="14" x="503" y="384" font-family="Roboto" fill="#6E7079">
+18s
+</text>
+<text font-size="14" x="554" y="384" font-family="Roboto" fill="#6E7079">
+20s
+</text>
+<text font-size="14" x="605" y="384" font-family="Roboto" fill="#6E7079">
+22s
+</text>
+<text font-size="14" x="656" y="384" font-family="Roboto" fill="#6E7079">
+24s
+</text>
+<text font-size="14" x="707" y="384" font-family="Roboto" fill="#6E7079">
+26s
+</text>
+<text font-size="14" x="758" y="384" font-family="Roboto" fill="#6E7079">
+28s
 </text>
 </g>
 <g>
-<path d="M 80.9 327.1 L 190.8 273.6 L 300.6 200 L 410.5 129.6 L 520.4 163.5 L 630.2 237.2 L 740.1 292.4" stroke-width="2" fill="none" stroke="#5470C6"/>
-<circle cx="80.9" cy="327.1" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
-<circle cx="190.8" cy="273.6" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
-<circle cx="300.6" cy="200" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
-<circle cx="410.5" cy="129.6" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
-<circle cx="520.4" cy="163.5" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
-<circle cx="630.2" cy="237.2" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
-<circle cx="740.1" cy="292.4" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<path d="M 55.5 365 L 106.5 71.2 L 157.5 282 L 208.5 289.8 L 259.5 297.3 L 310.5 297.1 L 361.5 199.5 L 412.5 342.4 L 463.5 327.4 L 514.5 349.9 L 565.5 327.4 L 616.5 349.9 L 667.5 334.9 L 718.5 342.4 L 769.5 334.9" stroke-width="2" fill="none" stroke="#5470C6"/>
+<circle cx="55.5" cy="365" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="106.5" cy="71.2" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="157.5" cy="282" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="208.5" cy="289.8" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="259.5" cy="297.3" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="310.5" cy="297.1" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="361.5" cy="199.5" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="412.5" cy="342.4" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="463.5" cy="327.4" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="514.5" cy="349.9" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="565.5" cy="327.4" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="616.5" cy="349.9" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="667.5" cy="334.9" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="718.5" cy="342.4" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
+<circle cx="769.5" cy="334.9" r="2" stroke-width="2" stroke="#5470C6" fill="#FFFFFF"/>
 </g>
 </svg>
