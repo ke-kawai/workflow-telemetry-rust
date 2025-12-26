@@ -66,6 +66,7 @@ jobs:
             mkdir -p docs/charts
             cp cpu-usage.png docs/charts/ 2>/dev/null || true
             cp memory-usage.png docs/charts/ 2>/dev/null || true
+            cp combined-usage.png docs/charts/ 2>/dev/null || true
             
             # GitHubにコミット
             git config user.name "github-actions[bot]"
@@ -83,6 +84,7 @@ jobs:
           path: |
             cpu-usage.png
             memory-usage.png
+            combined-usage.png
           retention-days: 90
       
       - name: Display Summary
@@ -124,9 +126,21 @@ jobs:
             
             echo "## Charts" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Combined CPU & Memory Usage" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "![Combined Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/combined-usage.png)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Individual Charts</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### CPU Usage" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
             echo "![CPU Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/cpu-usage.png)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### Memory Usage" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
             echo "![Memory Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/memory-usage.png)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ No telemetry data available" >> $GITHUB_STEP_SUMMARY
