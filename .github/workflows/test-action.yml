@@ -64,14 +64,14 @@ jobs:
             
             # docs/chartsディレクトリに保存
             mkdir -p docs/charts
-            cp cpu-usage.png docs/charts/ 2>/dev/null || true
-            cp memory-usage.png docs/charts/ 2>/dev/null || true
+            cp cpu-usage.svg docs/charts/ 2>/dev/null || true
+            cp memory-usage.svg docs/charts/ 2>/dev/null || true
             cp combined-usage.svg docs/charts/ 2>/dev/null || true
-            
+
             # GitHubにコミット
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add docs/charts/*.png docs/charts/*.svg || true
+            git add docs/charts/*.svg || true
             git diff --staged --quiet || git commit -m "Update telemetry charts [skip ci]"
             git push || true
           fi
@@ -82,8 +82,8 @@ jobs:
         with:
           name: telemetry-charts
           path: |
-            cpu-usage.png
-            memory-usage.png
+            cpu-usage.svg
+            memory-usage.svg
             combined-usage.svg
           retention-days: 90
       
@@ -134,11 +134,11 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "#### CPU Usage" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "![CPU Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/cpu-usage.png)" >> $GITHUB_STEP_SUMMARY
+            echo "![CPU Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/cpu-usage.svg)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "#### Memory Usage" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "![Memory Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/memory-usage.png)" >> $GITHUB_STEP_SUMMARY
+            echo "![Memory Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/memory-usage.svg)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "</details>" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY

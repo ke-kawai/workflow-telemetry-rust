@@ -3,7 +3,7 @@ mod reporters;
 mod charts;
 
 use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
-use charts::{generate_cpu_chart_png, generate_memory_chart_png, generate_combined_chart_svg};
+use charts::{generate_cpu_chart, generate_memory_chart, generate_combined_chart};
 use std::env;
 use std::fs;
 use std::thread;
@@ -40,28 +40,28 @@ fn generate_svg_from_json(json_path: &str) {
         Ok(json_content) => {
             match serde_json::from_str::<TelemetryData>(&json_content) {
                 Ok(data) => {
-                    // CPU PNG生成
+                    // CPU SVG生成
                     if !data.cpu.is_empty() {
-                        match generate_cpu_chart_png(&data.cpu) {
-                            Ok(png_data) => {
-                                if let Err(e) = fs::write("cpu-usage.png", &png_data) {
-                                    eprintln!("Failed to write CPU PNG: {}", e);
+                        match generate_cpu_chart(&data.cpu) {
+                            Ok(svg_data) => {
+                                if let Err(e) = fs::write("cpu-usage.svg", &svg_data) {
+                                    eprintln!("Failed to write CPU SVG: {}", e);
                                 } else {
-                                    eprintln!("✅ CPU chart saved to cpu-usage.png");
+                                    eprintln!("✅ CPU chart saved to cpu-usage.svg");
                                 }
                             }
                             Err(e) => eprintln!("Failed to generate CPU chart: {}", e),
                         }
                     }
                     
-                    // Memory PNG生成
+                    // Memory SVG生成
                     if !data.memory.is_empty() {
-                        match generate_memory_chart_png(&data.memory) {
-                            Ok(png_data) => {
-                                if let Err(e) = fs::write("memory-usage.png", &png_data) {
-                                    eprintln!("Failed to write Memory PNG: {}", e);
+                        match generate_memory_chart(&data.memory) {
+                            Ok(svg_data) => {
+                                if let Err(e) = fs::write("memory-usage.svg", &svg_data) {
+                                    eprintln!("Failed to write Memory SVG: {}", e);
                                 } else {
-                                    eprintln!("✅ Memory chart saved to memory-usage.png");
+                                    eprintln!("✅ Memory chart saved to memory-usage.svg");
                                 }
                             }
                             Err(e) => eprintln!("Failed to generate Memory chart: {}", e),
@@ -70,7 +70,7 @@ fn generate_svg_from_json(json_path: &str) {
 
                     // 統合グラフSVG生成
                     if !data.cpu.is_empty() && !data.memory.is_empty() {
-                        match generate_combined_chart_svg(&data.cpu, &data.memory) {
+                        match generate_combined_chart(&data.cpu, &data.memory) {
                             Ok(svg_data) => {
                                 if let Err(e) = fs::write("combined-usage.svg", &svg_data) {
                                     eprintln!("Failed to write combined SVG: {}", e);
