@@ -1,6 +1,6 @@
 use crate::collectors::{CpuStats, MemoryStats};
 use anyhow::Result;
-use charts_rs::{LineChart, Series, svg_to_png, Color};
+use charts_rs::{LineChart, Series, svg_to_png, Color, Box};
 
 pub fn generate_cpu_chart(data: &[CpuStats]) -> Result<String> {
     if data.is_empty() {
@@ -93,10 +93,15 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
         .map(|s| s.total_load as f32)
         .collect();
 
-    // メモリ使用量データ（%に変換）
+    // メモリ使用量データ（GBに変換）
     let memory_values: Vec<f32> = memory_data.iter()
-        .map(|s| s.usage_percent as f32)
+        .map(|s| (s.used_mb as f64 / 1024.0) as f32)
         .collect();
+
+    // メモリの最大容量（GB）
+    let max_memory_gb = memory_data.first()
+        .map(|s| (s.total_mb as f64 / 1024.0) as f32)
+        .unwrap_or(16.0);
 
     // CPU用のSeries
     let mut cpu_series = Series::new("CPU %".to_string(), cpu_values);
@@ -104,7 +109,7 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
     cpu_series.label_show = false;
 
     // メモリ用のSeries
-    let mut memory_series = Series::new("Memory %".to_string(), memory_values);
+    let mut memory_series = Series::new("Memory GB".to_string(), memory_values);
     memory_series.y_axis_index = 1;
     memory_series.label_show = false;
 
@@ -118,6 +123,15 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
     chart.title_text = "CPU and Memory Usage".to_string();
     chart.width = 1000.0;
     chart.height = 500.0;
+
+    // 凡例を下に配置（上のマージンを大きくして、グラフの下に表示）
+    chart.legend_align = charts_rs::Align::Center;
+    chart.legend_margin = Some(Box {
+        top: 420.0,  // グラフの下に配置
+        left: 10.0,
+        right: 10.0,
+        bottom: 10.0,
+    });
 
     // エリア塗りつぶしと滑らかなカーブを有効化
     chart.series_fill = true;
@@ -137,10 +151,10 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
     chart.y_axis_configs[0].axis_min = Some(0.0);
     chart.y_axis_configs[0].axis_max = Some(100.0);
 
-    // メモリ軸（右）の設定：0-100%固定
-    chart.y_axis_configs[1].axis_formatter = Some("{c}%".to_string());
+    // メモリ軸（右）の設定：0からmax_memory_gb固定
+    chart.y_axis_configs[1].axis_formatter = Some("{c}GB".to_string());
     chart.y_axis_configs[1].axis_min = Some(0.0);
-    chart.y_axis_configs[1].axis_max = Some(100.0);
+    chart.y_axis_configs[1].axis_max = Some(max_memory_gb);
 
     // SVG生成してPNGに変換
     let svg = chart.svg()?;
