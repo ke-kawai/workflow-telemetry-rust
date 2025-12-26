@@ -1,0 +1,127 @@
+<svg width="1000" height="500" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="1000" height="500" fill="#FFFFFF"/>
+<text font-size="18" x="398.5" y="5" dy="15" font-weight="bold" dominant-baseline="middle" font-family="Roboto" fill="#464646">
+CPU and Memory Usage
+</text>
+<g>
+<line stroke-width="2" x1="25" y1="25" x2="50" y2="25" stroke="#FF6B6B"/>
+<circle cx="37.5" cy="25" r="5.5" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+<text font-size="14" x="53" y="29" font-family="Roboto" fill="#464646">
+CPU %
+</text>
+</g>
+<g>
+<line stroke-width="2" x1="101" y1="25" x2="126" y2="25" stroke="#51CF66"/>
+<circle cx="113.5" cy="25" r="5.5" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+<text font-size="14" x="129" y="29" font-family="Roboto" fill="#464646">
+Memory GB
+</text>
+</g>
+<g stroke="#E0E6F2">
+<line stroke-width="1" x1="48" y1="57" x2="952" y2="57"/><line stroke-width="1" x1="48" y1="125" x2="952" y2="125"/><line stroke-width="1" x1="48" y1="193" x2="952" y2="193"/><line stroke-width="1" x1="48" y1="261" x2="952" y2="261"/><line stroke-width="1" x1="48" y1="329" x2="952" y2="329"/><line stroke-width="1" x1="48" y1="397" x2="952" y2="397"/>
+</g>
+<g>
+
+<text font-size="14" x="6" y="62" font-family="Roboto" fill="#6E7079">
+100%
+</text>
+<text font-size="14" x="2" y="130" font-family="Roboto" fill="#6E7079">
+83.3%
+</text>
+<text font-size="14" x="2" y="198" font-family="Roboto" fill="#6E7079">
+66.7%
+</text>
+<text font-size="14" x="14" y="266" font-family="Roboto" fill="#6E7079">
+50%
+</text>
+<text font-size="14" x="2" y="334" font-family="Roboto" fill="#6E7079">
+33.3%
+</text>
+<text font-size="14" x="2" y="402" font-family="Roboto" fill="#6E7079">
+16.7%
+</text>
+<text font-size="14" x="22" y="470" font-family="Roboto" fill="#6E7079">
+0%
+</text>
+</g>
+<g>
+
+<text font-size="14" x="960" y="64" font-family="Roboto" fill="#6E7079">
+10GB
+</text>
+<text font-size="14" x="960" y="132" font-family="Roboto" fill="#6E7079">
+8.3GB
+</text>
+<text font-size="14" x="960" y="200" font-family="Roboto" fill="#6E7079">
+6.7GB
+</text>
+<text font-size="14" x="960" y="268" font-family="Roboto" fill="#6E7079">
+5GB
+</text>
+<text font-size="14" x="960" y="336" font-family="Roboto" fill="#6E7079">
+3.3GB
+</text>
+<text font-size="14" x="960" y="404" font-family="Roboto" fill="#6E7079">
+1.7GB
+</text>
+<text font-size="14" x="960" y="472" font-family="Roboto" fill="#6E7079">
+0GB
+</text>
+</g>
+<g>
+<g stroke="#6E7079">
+<line stroke-width="1" x1="48" y1="465" x2="952" y2="465"/>
+<line stroke-width="1" x1="48" y1="465" x2="48" y2="470"/>
+<line stroke-width="1" x1="177.1" y1="465" x2="177.1" y2="470"/>
+<line stroke-width="1" x1="306.3" y1="465" x2="306.3" y2="470"/>
+<line stroke-width="1" x1="435.4" y1="465" x2="435.4" y2="470"/>
+<line stroke-width="1" x1="564.6" y1="465" x2="564.6" y2="470"/>
+<line stroke-width="1" x1="693.7" y1="465" x2="693.7" y2="470"/>
+<line stroke-width="1" x1="822.9" y1="465" x2="822.9" y2="470"/>
+<line stroke-width="1" x1="952" y1="465" x2="952" y2="470"/>
+</g>
+<text font-size="14" x="105.1" y="484" font-family="Roboto" fill="#6E7079">
+0s
+</text>
+<text font-size="14" x="234.2" y="484" font-family="Roboto" fill="#6E7079">
+2s
+</text>
+<text font-size="14" x="363.4" y="484" font-family="Roboto" fill="#6E7079">
+4s
+</text>
+<text font-size="14" x="492.5" y="484" font-family="Roboto" fill="#6E7079">
+6s
+</text>
+<text font-size="14" x="621.6" y="484" font-family="Roboto" fill="#6E7079">
+8s
+</text>
+<text font-size="14" x="746.8" y="484" font-family="Roboto" fill="#6E7079">
+10s
+</text>
+<text font-size="14" x="875.9" y="484" font-family="Roboto" fill="#6E7079">
+12s
+</text>
+</g>
+<path d="M112.6,422.2 C144.9 407.1, 210.6 379.1, 241.7 361.8 C275.2 343.2, 338.4 299, 370.9 278.5 C402.9 258.3, 465.8 204.4, 500 199 C530.4 194.1, 599 223.1, 629.1 237.3 C663.5 253.5, 724.9 301.7, 758.3 320.6 C789.5 338.1, 855.1 367.4, 887.4 383M 887.4 383 L 887.4 465 L 112.6 465 L 112.6 422.2" fill="#FF6B6B" fill-opacity="0.4"/>
+<g>
+<path d="M112.6,422.2 C144.9 407.1, 210.6 379.1, 241.7 361.8 C275.2 343.2, 338.4 299, 370.9 278.5 C402.9 258.3, 465.8 204.4, 500 199 C530.4 194.1, 599 223.1, 629.1 237.3 C663.5 253.5, 724.9 301.7, 758.3 320.6 C789.5 338.1, 855.1 367.4, 887.4 383" stroke-width="2" fill="none" stroke="#FF6B6B"/>
+<circle cx="112.6" cy="422.2" r="2" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+<circle cx="241.7" cy="361.8" r="2" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+<circle cx="370.9" cy="278.5" r="2" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+<circle cx="500" cy="199" r="2" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+<circle cx="629.1" cy="237.3" r="2" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+<circle cx="758.3" cy="320.6" r="2" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+<circle cx="887.4" cy="383" r="2" stroke-width="2" stroke="#FF6B6B" fill="#FFFFFF"/>
+</g>
+<path d="M112.6,342.6 C144.9 332.4, 210.3 314.2, 241.7 301.8 C274.9 288.7, 338.6 255.9, 370.9 240.6 C403.1 225.3, 466.8 182, 500 179.4 C531.4 176.9, 597.7 207.8, 629.1 220.2 C662.3 233.3, 725.1 268.3, 758.3 281.4 C789.7 293.8, 855.1 312, 887.4 322.2M 887.4 322.2 L 887.4 465 L 112.6 465 L 112.6 342.6" fill="#51CF66" fill-opacity="0.4"/>
+<g>
+<path d="M112.6,342.6 C144.9 332.4, 210.3 314.2, 241.7 301.8 C274.9 288.7, 338.6 255.9, 370.9 240.6 C403.1 225.3, 466.8 182, 500 179.4 C531.4 176.9, 597.7 207.8, 629.1 220.2 C662.3 233.3, 725.1 268.3, 758.3 281.4 C789.7 293.8, 855.1 312, 887.4 322.2" stroke-width="2" fill="none" stroke="#51CF66"/>
+<circle cx="112.6" cy="342.6" r="2" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+<circle cx="241.7" cy="301.8" r="2" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+<circle cx="370.9" cy="240.6" r="2" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+<circle cx="500" cy="179.4" r="2" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+<circle cx="629.1" cy="220.2" r="2" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+<circle cx="758.3" cy="281.4" r="2" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+<circle cx="887.4" cy="322.2" r="2" stroke-width="2" stroke="#51CF66" fill="#FFFFFF"/>
+</g>
+</svg>
