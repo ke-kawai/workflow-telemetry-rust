@@ -2,9 +2,9 @@
 
 ## プロジェクト概要
 
-GitHub Actionsワークフローの実行中にCPUとメモリの使用状況を監視し、グラフ付きレポートを生成するツール。
+GitHub Actions ワークフローの実行中に CPU とメモリの使用状況を監視し、グラフ付きレポートを生成するツール。
 
-元々はMermaidでグラフを作成する予定だったが、Mermaidでは限界があったため、`charts-rs`に切り替えた。
+元々は Mermaid でグラフを作成する予定だったが、Mermaid では限界があったため、`charts-rs`に切り替えた。
 
 ## アーキテクチャ
 
@@ -15,13 +15,15 @@ GitHub Actionsワークフローの実行中にCPUとメモリの使用状況を
 - バックグラウンドプロセスとして起動
 - `/proc/stat`, `/proc/meminfo`からデータを収集
 - 指定間隔でデータポイントを記録
-- 終了時にJSON形式でデータを保存 (`/tmp/telemetry_data.json`)
+- 終了時に JSON 形式でデータを保存 (`/tmp/telemetry_data.json`)
 
 **環境変数**:
-- `TELEMETRY_INTERVAL`: データ収集間隔（秒）デフォルト5秒
-- `TELEMETRY_ITERATIONS`: 最大収集回数 デフォルト60回
+
+- `TELEMETRY_INTERVAL`: データ収集間隔（秒）デフォルト 5 秒
+- `TELEMETRY_ITERATIONS`: 最大収集回数 デフォルト 60 回
 
 **出力**:
+
 ```json
 {
   "cpu": [
@@ -39,13 +41,14 @@ GitHub Actionsワークフローの実行中にCPUとメモリの使用状況を
 
 **コマンド**: `./telemetry --generate-svg <json_file>`
 
-- JSONデータを読み込み
-- `charts-rs`でSVG生成
-- `charts-rs::svg_to_png()`でPNGに変換
+- JSON データを読み込み
+- `charts-rs`で SVG 生成
+- `charts-rs::svg_to_png()`で PNG に変換
 - `cpu-usage.png`, `memory-usage.png`を出力
 
 **重要ポイント**:
-- `charts-rs`のPNG生成には`image-encoder` featureが必要
+
+- `charts-rs`の PNG 生成には`image-encoder` feature が必要
 - `Cargo.toml`: `charts-rs = { version = "0.3.27", features = ["image-encoder"] }`
 - `svg_to_png()`関数を使用（`.png()`メソッドは存在しない）
 
@@ -53,42 +56,46 @@ GitHub Actionsワークフローの実行中にCPUとメモリの使用状況を
 
 **場所**: GitHub Actions Step Summary
 
-- ワークフローからJSONを解析して統計を計算
-- PNGをリポジトリにコミット (`docs/charts/`)
-- Summaryに絶対URLで画像を表示
+- ワークフローから JSON を解析して統計を計算
+- PNG をリポジトリにコミット (`docs/charts/`)
+- Summary に絶対 URL で画像を表示
 
 ## 実装の難所と解決策
 
-### 問題1: GitHub Step SummaryにSVG/PNGが表示されない
+### 問題 1: GitHub Step Summary に SVG/PNG が表示されない
 
 **試したこと**:
-- ❌ インラインSVG埋め込み → 表示されない
-- ❌ Base64エンコードしたSVG (`data:image/svg+xml;base64,...`) → 表示されない
-- ❌ Base64エンコードしたPNG (`data:image/png;base64,...`) → 表示されない
-- ❌ 相対パス (`docs/charts/cpu-usage.png`) → 404エラー
-- ✅ **絶対URL** (`https://raw.githubusercontent.com/{owner}/{repo}/main/docs/charts/cpu-usage.png`)
 
-**解決策**: 
-画像をリポジトリにコミットして、絶対URLで参照する。
+- ❌ インライン SVG 埋め込み → 表示されない
+- ❌ Base64 エンコードした SVG (`data:image/svg+xml;base64,...`) → 表示されない
+- ❌ Base64 エンコードした PNG (`data:image/png;base64,...`) → 表示されない
+- ❌ 相対パス (`docs/charts/cpu-usage.png`) → 404 エラー
+- ✅ **絶対 URL** (`https://raw.githubusercontent.com/{owner}/{repo}/main/docs/charts/cpu-usage.png`)
 
-### 問題2: バックグラウンドプロセスからGITHUB_STEP_SUMMARYに書き込めない
+**解決策**:
+画像をリポジトリにコミットして、絶対 URL で参照する。
+
+### 問題 2: バックグラウンドプロセスから GITHUB_STEP_SUMMARY に書き込めない
 
 **試したこと**:
-- ❌ Rustバイナリから直接`$GITHUB_STEP_SUMMARY`に書き込み → ファイルは書けるが、Summaryに表示されない
 
-**原因**: 
-バックグラウンドプロセスから書き込んだファイルはGitHub Actionsが認識しない可能性がある。
+- ❌ Rust バイナリから直接`$GITHUB_STEP_SUMMARY`に書き込み → ファイルは書けるが、Summary に表示されない
 
-**解決策**: 
+**原因**:
+バックグラウンドプロセスから書き込んだファイルは GitHub Actions が認識しない可能性がある。
+
+**解決策**:
 ワークフローのステップから直接`>> $GITHUB_STEP_SUMMARY`で書き込む。
 
-### 問題3: SIGTERMでシグナルハンドラーが呼ばれない
+### 問題 3: SIGTERM でシグナルハンドラーが呼ばれない
 
 **試したこと**:
-- ❌ `ctrlc`クレートでSIGTERMハンドラー → `sleep`中にシグナルを受け取ると無視される
 
-**解決策**: 
+- ❌ `ctrlc`クレートで SIGTERM ハンドラー → `sleep`中にシグナルを受け取ると無視される
+
+**解決策**:
 シグナルを使わず、プロセスを自然終了させる方式に変更。
+
 - 最大反復回数を設定 (`TELEMETRY_ITERATIONS`)
 - ワークフローで終了を待つ
 
@@ -96,7 +103,7 @@ GitHub Actionsワークフローの実行中にCPUとメモリの使用状況を
 
 ```yaml
 permissions:
-  contents: write  # 重要: チャート画像をコミットするため必要
+  contents: write # 重要: チャート画像をコミットするため必要
 
 jobs:
   test-telemetry:
@@ -149,39 +156,37 @@ git push
 ## 参考実装
 
 - [catchpoint/workflow-telemetry-action](https://github.com/catchpoint/workflow-telemetry-action)
-  - 外部API (`api.globadge.com`) を使ってグラフ生成
-  - 返されたURLをSummaryに埋め込む方式
+  - 外部 API (`api.globadge.com`) を使ってグラフ生成
+  - 返された URL を Summary に埋め込む方式
 
 ## 次のステップ候補
 
 1. **複数ワークフローへの対応**
-   - 現在は固定の15回×2秒間隔
+
+   - 現在は固定の 15 回 ×2 秒間隔
    - ワークフローの長さに応じて動的に調整
 
 2. **統計の改善**
-   - P95, P99などのパーセンタイル
+
+   - P95, P99 などのパーセンタイル
    - 時系列での異常検知
 
-3. **グラフの改善**
-   - テーマ選択（dark/light）
-   - 複数メトリクスを1つのグラフに
-   - インタラクティブなグラフ（Plotlyなど）
+3. **外部 API の利用**
 
-4. **外部APIの利用**
    - QuickChart.io などの無料サービス
    - リポジトリコミット不要になる
 
-5. **GitHub Action化**
-   - composite actionとして公開
+4. **GitHub Action 化**
+   - composite action として公開
    - `uses: ke-kawai/workflow-telemetry-rust@v1`で使えるように
 
 ## トラブルシューティング
 
 ### グラフが表示されない
 
-1. `docs/charts/`にPNGファイルが存在するか確認
+1. `docs/charts/`に PNG ファイルが存在するか確認
 2. コミットログに"Update telemetry charts"があるか確認
-3. URLが正しいか確認（`https://raw.githubusercontent.com/...`)
+3. URL が正しいか確認（`https://raw.githubusercontent.com/...`)
 4. 画像が最新のコミットのものか確認（ブラウザキャッシュクリア）
 
 ### データが収集されない
@@ -192,9 +197,9 @@ git push
 
 ### ビルドエラー
 
-- `charts-rs`の`image-encoder` featureが有効か確認
+- `charts-rs`の`image-encoder` feature が有効か確認
 - `serde_json`が依存関係に含まれているか確認
-- `CpuStats`, `MemoryStats`に`Deserialize` traitが実装されているか確認
+- `CpuStats`, `MemoryStats`に`Deserialize` trait が実装されているか確認
 
 ## 技術スタック
 
@@ -203,3 +208,25 @@ git push
 - **シリアライズ**: serde, serde_json
 - **ビルド**: cargo-zigbuild (クロスコンパイル用)
 - **CI**: GitHub Actions
+
+## 展望
+
+- デザインを修正。
+  CPU とメモリを統合して一つのグラフにして
+  CPU は赤線、メモリは緑線。左の縦軸が CPU で右がメモリ。あとは折れ線グラフの下は薄い色で塗りつぶすこと。
+  その上で CPU の軸は最大 100%で固定、メモリも最大量で固定。そうしたら改善すべきかどうか分かり易いでしょ？
+- 判例の位置を修正。上に来てるんだけど表示が重なってみずらい。グラフの下に置けん？
+
+- network/ disk IO にも対応
+
+- プロセスを自然終了させる方法をなんとかする。
+  今の方法じゃ一般的に使えなさすぎる。参考リポジトリはこの辺りうまくやっているはずなので調査。
+
+- svg のがいい。
+  今 png で保存してるけどリポジトリのパスを参照するなら、svg でもできると思う。
+  toml から不要な feature を消すのを忘れずに。
+
+- コードに変更を加えたくない。
+  https://www.nxted.co.jp/blog/blog_detail?id=147
+  これによれば github のリリースに画像を保存してそこから引っ張ってくる方法がある。
+  ちなみにこれでも svg いけそう

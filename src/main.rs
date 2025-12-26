@@ -3,7 +3,7 @@ mod reporters;
 mod charts;
 
 use collectors::{CpuCollector, CpuStats, MemoryCollector, MemoryStats};
-use charts::{generate_cpu_chart_png, generate_memory_chart_png};
+use charts::{generate_cpu_chart_png, generate_memory_chart_png, generate_combined_chart_png};
 use std::env;
 use std::fs;
 use std::thread;
@@ -65,6 +65,20 @@ fn generate_svg_from_json(json_path: &str) {
                                 }
                             }
                             Err(e) => eprintln!("Failed to generate Memory chart: {}", e),
+                        }
+                    }
+
+                    // 統合グラフPNG生成
+                    if !data.cpu.is_empty() && !data.memory.is_empty() {
+                        match generate_combined_chart_png(&data.cpu, &data.memory) {
+                            Ok(png_data) => {
+                                if let Err(e) = fs::write("combined-usage.png", &png_data) {
+                                    eprintln!("Failed to write combined PNG: {}", e);
+                                } else {
+                                    eprintln!("✅ Combined chart saved to combined-usage.png");
+                                }
+                            }
+                            Err(e) => eprintln!("Failed to generate combined chart: {}", e),
                         }
                     }
                 }
