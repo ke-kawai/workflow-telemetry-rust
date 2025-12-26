@@ -115,7 +115,7 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
         "light"
     );
 
-    chart.title_text = "CPU & Memory Usage".to_string();
+    chart.title_text = "CPU and Memory Usage".to_string();
     chart.width = 1000.0;
     chart.height = 500.0;
 
