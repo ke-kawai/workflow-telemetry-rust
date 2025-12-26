@@ -122,13 +122,13 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
 
     chart.title_text = "CPU and Memory Usage".to_string();
     chart.width = 1000.0;
-    chart.height = 600.0;  // 凡例のスペースを確保するため高さを増加
+    chart.height = 500.0;
 
-    // 凡例を下に配置（上のマージンを大きくして、グラフの下に表示）
-    chart.legend_align = charts_rs::Align::Center;
+    // 凡例を左寄せにして、タイトルと被らない位置に配置
+    chart.legend_align = charts_rs::Align::Left;
     chart.legend_margin = Some(Box {
-        top: 500.0,  // グラフの下に配置
-        left: 10.0,
+        top: 70.0,  // タイトルと被らない位置
+        left: 20.0,
         right: 10.0,
         bottom: 10.0,
     });
