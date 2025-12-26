@@ -6,22 +6,18 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   test-telemetry:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Start telemetry monitoring
-        run: |
-          chmod +x ./telemetry
-          TELEMETRY_INTERVAL=2 TELEMETRY_ITERATIONS=15 ./telemetry > /tmp/telemetry.log 2>&1 &
-          echo $! > /tmp/telemetry.pid
-          echo "Telemetry started (PID: $(cat /tmp/telemetry.pid))"
-      
+
+      # Start telemetry monitoring
+      - uses: ./
+        with:
+          interval: '2'
+
+      # Simulate workload
       - name: Simulate workload
         run: |
           echo "Running CPU-intensive task..."
@@ -32,116 +28,5 @@ jobs:
             killall dd 2>/dev/null || true
           done
           echo "Workload complete"
-      
-      - name: Wait for telemetry to complete naturally
-        run: |
-          if [ -f /tmp/telemetry.pid ]; then
-            PID=$(cat /tmp/telemetry.pid)
-            echo "Waiting for telemetry (PID: $PID) to complete naturally..."
-            
-            for i in {1..120}; do
-              if ps -p $PID > /dev/null 2>&1; then
-                if [ $((i % 10)) -eq 0 ]; then
-                  echo "Still running after ${i}s..."
-                fi
-                sleep 1
-              else
-                echo "Process completed after ${i}s"
-                break
-              fi
-            done
-            
-            echo "=== Telemetry Log ==="
-            cat /tmp/telemetry.log || true
-            echo "=== End Log ==="
-          fi
-      
-      - name: Generate SVG Charts
-        if: always()
-        run: |
-          if [ -f /tmp/telemetry_data.json ]; then
-            ./telemetry --generate-svg /tmp/telemetry_data.json
-            
-            # docs/chartsディレクトリに保存
-            mkdir -p docs/charts
-            cp cpu-usage.svg docs/charts/ 2>/dev/null || true
-            cp memory-usage.svg docs/charts/ 2>/dev/null || true
-            cp combined-usage.svg docs/charts/ 2>/dev/null || true
 
-            # GitHubにコミット
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add docs/charts/*.svg || true
-            git diff --staged --quiet || git commit -m "Update telemetry charts [skip ci]"
-            git push || true
-          fi
-      
-      - name: Upload Charts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: telemetry-charts
-          path: |
-            cpu-usage.svg
-            memory-usage.svg
-            combined-usage.svg
-          retention-days: 90
-      
-      - name: Display Summary
-        if: always()
-        run: |
-          if [ -f /tmp/telemetry_data.json ]; then
-            echo "# Workflow Telemetry Report" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # JSONからデータポイント数を取得
-            DATA_POINTS=$(jq '.cpu | length' /tmp/telemetry_data.json)
-            
-            echo "## Summary" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Data Points Collected**: $DATA_POINTS" >> $GITHUB_STEP_SUMMARY
-            echo "- **Monitoring Interval**: 2 seconds" >> $GITHUB_STEP_SUMMARY
-            echo "- **Total Duration**: $((DATA_POINTS * 2)) seconds" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # CPU統計
-            AVG_CPU=$(jq '[.cpu[].total_load] | add / length' /tmp/telemetry_data.json)
-            MAX_CPU=$(jq '[.cpu[].total_load] | max' /tmp/telemetry_data.json)
-            
-            echo "## CPU Usage" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Average**: ${AVG_CPU}%" >> $GITHUB_STEP_SUMMARY
-            echo "- **Peak**: ${MAX_CPU}%" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # メモリ統計
-            AVG_MEM=$(jq '[.memory[].used_mb] | add / length' /tmp/telemetry_data.json)
-            MAX_MEM=$(jq '[.memory[].used_mb] | max' /tmp/telemetry_data.json)
-            
-            echo "## Memory Usage" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Average**: ${AVG_MEM} MB" >> $GITHUB_STEP_SUMMARY
-            echo "- **Peak**: ${MAX_MEM} MB" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            echo "## Charts" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Combined CPU & Memory Usage" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "![Combined Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/combined-usage.svg)" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "<details><summary>Individual Charts</summary>" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### CPU Usage" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "![CPU Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/cpu-usage.svg)" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "#### Memory Usage" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "![Memory Usage](https://raw.githubusercontent.com/${{ github.repository }}/main/docs/charts/memory-usage.svg)" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "</details>" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ No telemetry data available" >> $GITHUB_STEP_SUMMARY
-          fi
+      # Telemetry automatically stops and generates charts at job end

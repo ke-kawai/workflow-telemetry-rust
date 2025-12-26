@@ -1,0 +1,25 @@
+{
+  "name": "workflow-telemetry-rust",
+  "version": "1.0.0",
+  "description": "Monitor CPU and memory usage during GitHub Actions workflow execution",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.js -o dist/main && ncc build src/post.js -o dist/post && mv dist/main/index.js dist/index.js && mv dist/post/index.js dist/post.js && rm -rf dist/main dist/post",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "github-actions",
+    "telemetry",
+    "monitoring",
+    "performance"
+  ],
+  "author": "ke-kawai",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/exec": "^1.1.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.1"
+  }
+}
