@@ -27557,6 +27557,7 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 const core = __nccwpck_require__(7484);
 const exec = __nccwpck_require__(5236);
+const { spawn } = __nccwpck_require__(5317);
 const fs = __nccwpck_require__(9896);
 const path = __nccwpck_require__(6928);
 
@@ -27573,24 +27574,22 @@ async function run() {
     // Make binary executable
     await exec.exec('chmod', ['+x', telemetryBinary]);
 
-    // Start monitoring in background
-    const child = exec.exec(
-      telemetryBinary,
-      [],
-      {
-        env: {
-          ...process.env,
-          TELEMETRY_INTERVAL: interval,
-          TELEMETRY_ITERATIONS: '999999'
-        },
-        ignoreReturnCode: true,
-        detached: true,
-        stdio: ['ignore', 'ignore', 'ignore']
+    // Start monitoring in background using spawn
+    const child = spawn(telemetryBinary, [], {
+      detached: true,
+      stdio: 'ignore',
+      env: {
+        ...process.env,
+        TELEMETRY_INTERVAL: interval,
+        TELEMETRY_ITERATIONS: '999999'
       }
-    );
+    });
+
+    // Unref so parent can exit
+    child.unref();
 
     // Get PID and save it
-    const pid = child.pid || process.pid;
+    const pid = child.pid;
     const pidFile = '/tmp/telemetry.pid';
     fs.writeFileSync(pidFile, pid.toString());
 

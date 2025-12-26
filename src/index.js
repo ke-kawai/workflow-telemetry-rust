@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
+const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -16,24 +17,22 @@ async function run() {
     // Make binary executable
     await exec.exec('chmod', ['+x', telemetryBinary]);
 
-    // Start monitoring in background
-    const child = exec.exec(
-      telemetryBinary,
-      [],
-      {
-        env: {
-          ...process.env,
-          TELEMETRY_INTERVAL: interval,
-          TELEMETRY_ITERATIONS: '999999'
-        },
-        ignoreReturnCode: true,
-        detached: true,
-        stdio: ['ignore', 'ignore', 'ignore']
+    // Start monitoring in background using spawn
+    const child = spawn(telemetryBinary, [], {
+      detached: true,
+      stdio: 'ignore',
+      env: {
+        ...process.env,
+        TELEMETRY_INTERVAL: interval,
+        TELEMETRY_ITERATIONS: '999999'
       }
-    );
+    });
+
+    // Unref so parent can exit
+    child.unref();
 
     // Get PID and save it
-    const pid = child.pid || process.pid;
+    const pid = child.pid;
     const pidFile = '/tmp/telemetry.pid';
     fs.writeFileSync(pidFile, pid.toString());
 
