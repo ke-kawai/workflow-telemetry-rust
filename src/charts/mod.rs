@@ -76,9 +76,9 @@ pub fn generate_memory_chart_png(data: &[MemoryStats]) -> Result<Vec<u8>> {
     Ok(svg_to_png(&svg)?)
 }
 
-pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Result<Vec<u8>> {
+pub fn generate_combined_chart_svg(cpu_data: &[CpuStats], memory_data: &[MemoryStats]) -> Result<String> {
     if cpu_data.is_empty() || memory_data.is_empty() {
-        return Ok(Vec::new());
+        return Ok(String::new());
     }
 
     let start_time = cpu_data.first().unwrap().time;
@@ -127,10 +127,10 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
     // 凡例を左寄せにして、タイトルと被らない位置に配置
     chart.legend_align = charts_rs::Align::Left;
     chart.legend_margin = Some(Box {
-        top: 70.0,  // タイトルと被らない位置
+        top: 10.0,
         left: 20.0,
         right: 10.0,
-        bottom: 10.0,
+        bottom: 20.0,
     });
 
     // エリア塗りつぶしと滑らかなカーブを有効化
@@ -156,7 +156,6 @@ pub fn generate_combined_chart_png(cpu_data: &[CpuStats], memory_data: &[MemoryS
     chart.y_axis_configs[1].axis_min = Some(0.0);
     chart.y_axis_configs[1].axis_max = Some(max_memory_gb);
 
-    // SVG生成してPNGに変換
-    let svg = chart.svg()?;
-    Ok(svg_to_png(&svg)?)
+    // SVG生成
+    Ok(chart.svg()?)
 }
